@@ -1,0 +1,13 @@
+/* color palette from <https://developer.apple.com/design/human-interface-guidelines/color#iOS-iPadOS-system-colors> */
+:root {
+  --color-dark-gray: rgb(28, 28, 30);
+  --color-medium-dark-gray: rgb(44, 44, 46);
+  --color-gray: rgb(142, 142, 147);
+  --color-medium-light-gray: rgb(209, 209, 214);
+  --color-light-gray: rgb(242, 242, 247);
+
+  --color-blue: rgb(10, 132, 255);
+  --color-green: rgb(48, 209, 88);
+  --color-yellow: rgb(255, 214, 10);
+  --color-red: rgb(255, 69, 58);
+}
