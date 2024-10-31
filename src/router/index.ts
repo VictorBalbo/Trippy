@@ -8,9 +8,9 @@ const router = createRouter({
     {
       path: '/plan',
       name: 'Plan',
-      component: PlanView
+      component: PlanView,
     },
-  ]
+  ],
 })
 
 export default router
