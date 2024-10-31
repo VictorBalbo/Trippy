@@ -1,9 +1,9 @@
 import type { Destination, Transportation } from '.'
 
 export interface Trip {
-  Name: string
-  Start: string
-  End: string
-  Destinations: Destination[]
-  Transportations: Transportation[]
+  name: string
+  start: string
+  end: string
+  destinations: Destination[]
+  transportations: Transportation[]
 }

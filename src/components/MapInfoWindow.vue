@@ -67,6 +67,7 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
               v-if="!tripActivity"
               size="small"
               class="add-button"
+              @click="() => tripStore.addActivityToTrip(place as Place)"
             >
               <AddIcon class="icon-button" /> Add to trip
             </ButtonComponent>
@@ -75,6 +76,7 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
               severity="danger"
               size="small"
               class="remove-button"
+              @click="() => tripStore.removeActivityFromTrip(place as Place)"
             >
               <TrashIcon class="icon-button" /> Remove
             </ButtonComponent>
