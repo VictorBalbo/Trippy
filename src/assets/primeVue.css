@@ -1,0 +1,28 @@
+:root {
+  /* Generic */
+  --p-content-background: var(--color-background-soft);
+
+  --p-primary-color: var(--color-blue);
+  --p-primary-hover-color: var(--color-light-blue);
+  --p-primary-active-color: var(--color-dark-blue);
+  --p-primary-contrast-color: var(--color-white);
+
+  /* Accordion */
+  --p-accordion-header-padding: 0;
+  --p-accordion-panel-border-width: 0;
+  --p-accordion-content-padding: 0 var(--large-spacing);
+
+  /* Button */
+  --p-button-sm-padding-x: var(--small-spacing);
+  --p-button-sm-padding-y: var(--small-spacing);
+
+  --p-button-danger-background: var(--color-red);
+  --p-button-danger-border-color: var(--color-red);
+  --p-button-danger-color: var(--color-white);
+  --p-button-danger-hover-background: var(--color-light-red);
+  --p-button-danger-hover-border-color: var(--color-light-red);
+  --p-button-danger-hover-color: var(--color-white);
+  --p-button-danger-active-background: var(--color-dark-red);
+  --p-button-danger-active-border-color: var(--color-dark-red);
+  --p-button-danger-active-color: var(--color-white);
+}
