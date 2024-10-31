@@ -136,4 +136,15 @@ const mapUnwatch = watch(
   width: 100%;
   height: 100%;
 }
+
+.v-enter-active,
+.v-leave-active {
+  transition: all var(--default-transition) ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  transform: translateX(calc(-1 * var(--large-spacing)));
+  opacity: 0;
+}
 </style>
