@@ -21,6 +21,12 @@ export const useTripStore = defineStore('trip', () => {
       .reduce<Housing[]>((acc, d) => [...acc, d.housing!], []),
   )
 
+  const cost = computed(
+    () =>
+      activities.value.reduce((acc, d) => acc + (d.price ?? 0), 0) +
+      housing.value.reduce((acc, d) => acc + (d.price ?? 0), 0),
+  )
+
   const addActivityToTrip = (activity: Activity, destinationKey?: string) => {
     let destination: Destination | undefined
     if (destinationKey) {
@@ -33,8 +39,8 @@ export const useTripStore = defineStore('trip', () => {
       'tripStore',
       JSON.stringify({
         name: trip.value?.name,
-        start: trip.value?.start,
-        end: trip.value?.end,
+        startDate: trip.value?.startDate,
+        endDate: trip.value?.endDate,
         destinations: trip.value?.destinations,
         transportations: trip.value?.transportations,
       }),
@@ -49,8 +55,8 @@ export const useTripStore = defineStore('trip', () => {
       'tripStore',
       JSON.stringify({
         name: trip.value?.name,
-        start: trip.value?.start,
-        end: trip.value?.end,
+        startDate: trip.value?.startDate,
+        endDate: trip.value?.endDate,
         destinations: trip.value?.destinations,
         transportations: trip.value?.transportations,
       }),
@@ -71,11 +77,14 @@ export const useTripStore = defineStore('trip', () => {
   }
 
   return {
-    name: trip.value?.name,
-    destinations: trip.value?.destinations,
+    name: trip.value.name,
+    destinations: trip.value.destinations,
     activities,
     housing,
-    transportations: trip.value?.transportations,
+    cost,
+    transportations: trip.value.transportations,
+    startDate: trip.value.startDate,
+    endDate: trip.value.endDate,
     addActivityToTrip,
     removeActivityFromTrip,
   }
