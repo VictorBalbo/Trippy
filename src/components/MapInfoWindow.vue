@@ -94,55 +94,57 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
           </article>
         </header>
         <main class="body">
-          <article class="card-info">
+          <CardComponent class="card-info">
             <h3>Description</h3>
             <p>{{ place.description }}</p>
-          </article>
-          <article class="card-info">
+          </CardComponent>
+          <CardComponent class="card-info">
             <h3>Address</h3>
             <a :href="place.mapsUrl" target="_blank" rel="noopener">{{
               place.address
             }}</a>
-          </article>
-          <article v-if="place.phoneNumber" class="card-info">
+          </CardComponent>
+          <CardComponent v-if="place.phoneNumber" class="card-info">
             <h3>Phone</h3>
             <a :href="`tel:${place.phoneNumber}`">{{ place.phoneNumber }}</a>
-          </article>
-          <article v-if="place.website" class="card-info website-card">
+          </CardComponent>
+          <CardComponent v-if="place.website" class="card-info website-card">
             <h3>Website</h3>
             <a :href="place.website" target="_blank" rel="noopener">{{
               sanitizeUrl(place.website)
             }}</a>
-          </article>
-          <Accordion v-if="place.openingHours" class="card-info">
-            <AccordionPanel value="1">
-              <AccordionHeader>
-                <section class="accordion-header">
-                  <h3>Opening Hours</h3>
-                  <h5 class="accordion-header-text">
-                    {{
-                      place.openingHours.weekday_text.find(o =>
-                        o.startsWith(
-                          new Date().toLocaleDateString('en-US', {
-                            weekday: 'long',
-                          }),
-                        ),
-                      )
-                    }}
-                  </h5>
-                </section>
-              </AccordionHeader>
-              <AccordionContent>
-                <p
-                  v-for="(hours, index) in place.openingHours.weekday_text"
-                  :key="index"
-                  class="opening-hours"
-                >
-                  {{ hours }}
-                </p>
-              </AccordionContent>
-            </AccordionPanel>
-          </Accordion>
+          </CardComponent>
+          <CardComponent v-if="place.openingHours" class="card-info">
+            <Accordion>
+              <AccordionPanel value="1">
+                <AccordionHeader>
+                  <section class="accordion-header">
+                    <h3>Opening Hours</h3>
+                    <h5 class="accordion-header-text">
+                      {{
+                        place.openingHours.weekday_text.find(o =>
+                          o.startsWith(
+                            new Date().toLocaleDateString('en-US', {
+                              weekday: 'long',
+                            }),
+                          ),
+                        )
+                      }}
+                    </h5>
+                  </section>
+                </AccordionHeader>
+                <AccordionContent>
+                  <p
+                    v-for="(hours, index) in place.openingHours.weekday_text"
+                    :key="index"
+                    class="opening-hours"
+                  >
+                    {{ hours }}
+                  </p>
+                </AccordionContent>
+              </AccordionPanel>
+            </Accordion>
+          </CardComponent>
         </main>
       </section>
     </CardComponent>
@@ -251,9 +253,6 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
   .card-info {
     padding: var(--large-spacing);
     margin-bottom: var(--large-spacing);
-    background-color: var(--color-background-soft);
-    box-shadow: 0 1px 5px #0000001f;
-    border-radius: var(--small-spacing);
   }
   .website-card {
     word-break: break-all;
