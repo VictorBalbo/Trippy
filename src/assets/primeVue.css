@@ -25,4 +25,7 @@
   --p-button-danger-active-background: var(--color-dark-red);
   --p-button-danger-active-border-color: var(--color-dark-red);
   --p-button-danger-active-color: var(--color-white);
+
+  /* Divider */
+  --p-divider-border-color: var(--color-border);
 }

@@ -6,7 +6,7 @@
 
 <style scoped>
 .card {
-  background-color: var(--color-background);
+  background-color: var(--color-background-soft);
   box-shadow: 0 1px 5px #0000001f;
   border-radius: var(--small-spacing);
   transition: var(--default-transition);
