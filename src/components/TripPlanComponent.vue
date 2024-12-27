@@ -3,6 +3,7 @@ import { useTripStore } from '@/stores'
 import dayjs from 'dayjs'
 import { InputNumber } from '.'
 import type { Destination } from '@/models'
+import { BedIcon, HikingIcon, MoonIcon } from '@/components/icons'
 
 const tripStore = useTripStore()
 const updateNights = (destination: Destination, nights: number) => {
@@ -36,10 +37,18 @@ const updateNights = (destination: Destination, nights: number) => {
   <table class="plan-table">
     <thead>
       <tr>
-        <th class="destination"><MarkerIcon class="icon" /></th>
-        <th class="nights"><MoonIcon class="icon" /> Nights</th>
-        <th class="activities"><TicketIcon class="icon" /> Activities</th>
-        <th class="housing"><BedIcon class="icon" /> Housing</th>
+        <th class="destination"></th>
+        <th class="nights">
+          <article class="header"><MoonIcon class="icon" />Nights</article>
+        </th>
+        <th class="activities">
+          <article class="header">
+            <HikingIcon class="icon" />Activities
+          </article>
+        </th>
+        <th class="housing">
+          <article class="header"><BedIcon class="icon" />Housing</article>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -75,6 +84,19 @@ const updateNights = (destination: Destination, nights: number) => {
 <style scoped>
 .plan-table {
   width: 100%;
+}
+.icon {
+  width: 1rem;
+  height: 1rem;
+  fill: white;
+}
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .icon {
+    margin-right: 0.25rem;
+  }
 }
 .item {
   text-align: center;

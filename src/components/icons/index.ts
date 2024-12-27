@@ -1,6 +1,21 @@
 import AddIcon from '@/components/icons/AddIcon.vue'
-import StarIcon from '@/components/icons/StarIcon.vue'
+import BedIcon from '@/components/icons/BedIcon.vue'
 import GlobeIcon from '@/components/icons/GlobeIcon.vue'
+import HikingIcon from '@/components/icons/HikingIcon.vue'
+import MarkerIcon from '@/components/icons/MarkerIcon.vue'
+import MoonIcon from '@/components/icons/MoonIcon.vue'
+import StarIcon from '@/components/icons/StarIcon.vue'
+import TicketIcon from '@/components/icons/TicketIcon.vue'
 import TrashIcon from '@/components/icons/TrashIcon.vue'
 
-export { AddIcon, GlobeIcon, StarIcon, TrashIcon }
+export {
+  AddIcon,
+  BedIcon,
+  GlobeIcon,
+  HikingIcon,
+  MarkerIcon,
+  MoonIcon,
+  StarIcon,
+  TicketIcon,
+  TrashIcon,
+}
