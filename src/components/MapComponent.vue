@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, useTemplateRef } from 'vue'
 import { GoogleMap, AdvancedMarker, MarkerCluster } from 'vue3-google-map'
 import { storeToRefs } from 'pinia'
 import { googleKey, googleMapId } from '@/constants'
 import { useTripStore } from '@/stores'
 import type { Place } from '@/models'
 import { MapInfoWindow } from '@/components'
+import { BedIcon } from '@/components/icons'
 
 const tripStore = useTripStore()
 const { activities, housing } = storeToRefs(tripStore)
 
 const mapCenter = ref<Place>()
 const currentPlace = ref<string>()
-const mapRef = ref<typeof GoogleMap>()
+
+const mapRef = useTemplateRef<typeof GoogleMap>('mapRef')
+const bedIconRef = useTemplateRef('bedIconRef')
 
 const openCustomInfoWindow = async (placeId?: string) => {
   if (currentPlace.value !== placeId) {
@@ -39,7 +42,7 @@ const mapUnwatch = watch(
       return
     }
 
-    mapRef.value?.map.addListener('click', (e: any) => {
+    mapRef.value?.map.addListener('click', (e: google.maps.IconMouseEvent) => {
       console.log(e)
       if (e.placeId) {
         openCustomInfoWindow(e.placeId)
@@ -92,20 +95,32 @@ const mapUnwatch = watch(
           @click="() => openCustomInfoWindow(marker.placeId)"
         />
         <AdvancedMarker
-          v-for="marker in housing"
+          v-for="(marker, index) in housing"
           :key="marker.name"
           :animation="2"
           :options="{
             position: marker.coordinates,
             title: marker.name,
           }"
-        />
+          :pin-options="{
+            scale: marker.placeId === currentPlace ? 1.25 : 1,
+            glyph: bedIconRef?.[index]?.$el,
+          }"
+        >
+          <BedIcon
+            ref="bedIconRef"
+            :style="{
+              width: '14px',
+            }"
+          />
+        </AdvancedMarker>
         <AdvancedMarker
           v-if="mapCenter && !activities?.find(a => a.placeId === currentPlace)"
           :options="{
             position: mapCenter?.coordinates,
             title: mapCenter?.name,
           }"
+          :animation="2"
           :pin-options="{
             borderColor: '#658c96',
             background: '#3e5871',
