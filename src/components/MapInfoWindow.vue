@@ -3,6 +3,7 @@ import { computed, ref, watchEffect } from 'vue'
 import { useTripStore } from '@/stores'
 import type { Place, MapPlace } from '@/models'
 import { MapsService } from '@/services'
+import ScrollPanel from 'primevue/scrollpanel'
 import {
   Accordion,
   AccordionPanel,
@@ -45,108 +46,110 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
       <section v-if="!place" class="info-window-loading">
         <ProgressSpinner />
       </section>
-      <section v-else class="info-window-content">
-        <img
-          class="photo"
-          :src="MapsService.getPhotoForPlace(place.images)"
-          :alt="place.name"
-        />
-        <header class="header">
-          <h2>{{ place.name }}</h2>
-          <article>
-            <h5 v-if="place.categories?.length">
-              {{ place.categories[0] }}
-            </h5>
-          </article>
-          <article v-if="place.rating" class="rating">
-            <StarIcon class="icon" />
-            <h3>{{ place.rating }} / 5</h3>
-          </article>
-          <article class="actions">
-            <ButtonComponent
-              v-if="!tripActivity"
-              size="small"
-              class="add-button"
-              @click="() => tripStore.addActivityToTrip(place as Place)"
-            >
-              <AddIcon class="icon-button" /> Add to trip
-            </ButtonComponent>
-            <ButtonComponent
-              v-else
-              severity="danger"
-              size="small"
-              class="remove-button"
-              @click="() => tripStore.removeActivityFromTrip(place as Place)"
-            >
-              <TrashIcon class="icon-button" /> Remove
-            </ButtonComponent>
-            <ButtonComponent
-              as="a"
-              :href="place.website"
-              target="_blank"
-              rel="noreferrer noopener"
-              severity="secondary"
-              size="small"
-              class="link-button"
-            >
-              <GlobeIcon class="icon-button" /> Go to Website
-            </ButtonComponent>
-          </article>
-        </header>
-        <main class="body">
-          <CardComponent class="card-info">
-            <h3>Description</h3>
-            <p>{{ place.description }}</p>
-          </CardComponent>
-          <CardComponent class="card-info">
-            <h3>Address</h3>
-            <a :href="place.mapsUrl" target="_blank" rel="noopener">{{
-              place.address
-            }}</a>
-          </CardComponent>
-          <CardComponent v-if="place.phoneNumber" class="card-info">
-            <h3>Phone</h3>
-            <a :href="`tel:${place.phoneNumber}`">{{ place.phoneNumber }}</a>
-          </CardComponent>
-          <CardComponent v-if="place.website" class="card-info website-card">
-            <h3>Website</h3>
-            <a :href="place.website" target="_blank" rel="noopener">{{
-              sanitizeUrl(place.website)
-            }}</a>
-          </CardComponent>
-          <CardComponent v-if="place.openingHours" class="card-info">
-            <Accordion>
-              <AccordionPanel value="1">
-                <AccordionHeader>
-                  <section class="accordion-header">
-                    <h3>Opening Hours</h3>
-                    <h5 class="accordion-header-text">
-                      {{
-                        place.openingHours.weekday_text.find(o =>
-                          o.startsWith(
-                            new Date().toLocaleDateString('en-US', {
-                              weekday: 'long',
-                            }),
-                          ),
-                        )
-                      }}
-                    </h5>
-                  </section>
-                </AccordionHeader>
-                <AccordionContent>
-                  <p
-                    v-for="(hours, index) in place.openingHours.weekday_text"
-                    :key="index"
-                    class="opening-hours"
-                  >
-                    {{ hours }}
-                  </p>
-                </AccordionContent>
-              </AccordionPanel>
-            </Accordion>
-          </CardComponent>
-        </main>
-      </section>
+      <ScrollPanel v-else class="info-window-content-scroll">
+        <section class="info-window-content">
+          <img
+            class="photo"
+            :src="MapsService.getPhotoForPlace(place.images)"
+            :alt="place.name"
+          />
+          <header class="header">
+            <h2>{{ place.name }}</h2>
+            <article>
+              <h5 v-if="place.categories?.length">
+                {{ place.categories[0] }}
+              </h5>
+            </article>
+            <article v-if="place.rating" class="rating">
+              <StarIcon class="icon" />
+              <h3>{{ place.rating }} / 5</h3>
+            </article>
+            <article class="actions">
+              <ButtonComponent
+                v-if="!tripActivity"
+                size="small"
+                class="add-button"
+                @click="() => tripStore.addActivityToTrip(place as Place)"
+              >
+                <AddIcon class="icon-button" /> Add to trip
+              </ButtonComponent>
+              <ButtonComponent
+                v-else
+                severity="danger"
+                size="small"
+                class="remove-button"
+                @click="() => tripStore.removeActivityFromTrip(place as Place)"
+              >
+                <TrashIcon class="icon-button" /> Remove
+              </ButtonComponent>
+              <ButtonComponent
+                as="a"
+                :href="place.website"
+                target="_blank"
+                rel="noreferrer noopener"
+                severity="secondary"
+                size="small"
+                class="link-button"
+              >
+                <GlobeIcon class="icon-button" /> Go to Website
+              </ButtonComponent>
+            </article>
+          </header>
+          <main class="body">
+            <CardComponent class="card-info">
+              <h3>Description</h3>
+              <p>{{ place.description }}</p>
+            </CardComponent>
+            <CardComponent class="card-info">
+              <h3>Address</h3>
+              <a :href="place.mapsUrl" target="_blank" rel="noopener">{{
+                place.address
+              }}</a>
+            </CardComponent>
+            <CardComponent v-if="place.phoneNumber" class="card-info">
+              <h3>Phone</h3>
+              <a :href="`tel:${place.phoneNumber}`">{{ place.phoneNumber }}</a>
+            </CardComponent>
+            <CardComponent v-if="place.website" class="card-info website-card">
+              <h3>Website</h3>
+              <a :href="place.website" target="_blank" rel="noopener">{{
+                sanitizeUrl(place.website)
+              }}</a>
+            </CardComponent>
+            <CardComponent v-if="place.openingHours" class="card-info">
+              <Accordion>
+                <AccordionPanel value="1">
+                  <AccordionHeader>
+                    <section class="accordion-header">
+                      <h3>Opening Hours</h3>
+                      <h5 class="accordion-header-text">
+                        {{
+                          place.openingHours.weekday_text.find(o =>
+                            o.startsWith(
+                              new Date().toLocaleDateString('en-US', {
+                                weekday: 'long',
+                              }),
+                            ),
+                          )
+                        }}
+                      </h5>
+                    </section>
+                  </AccordionHeader>
+                  <AccordionContent>
+                    <p
+                      v-for="(hours, index) in place.openingHours.weekday_text"
+                      :key="index"
+                      class="opening-hours"
+                    >
+                      {{ hours }}
+                    </p>
+                  </AccordionContent>
+                </AccordionPanel>
+              </Accordion>
+            </CardComponent>
+          </main>
+        </section>
+      </ScrollPanel>
     </CardComponent>
   </section>
 </template>
@@ -170,7 +173,7 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
   position: absolute;
   top: var(--large-spacing);
   right: var(--large-spacing);
-  z-index: 1;
+  z-index: 2;
   background-color: var(--color-background);
   border: 1px solid;
   width: 40px;
@@ -198,9 +201,13 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
 }
 
 .info-window-content {
-  position: absolute;
   display: flex;
   flex-direction: column;
+  height: 100%;
+}
+
+.info-window-content-scroll {
+  height: 100%;
 }
 
 .icon {
