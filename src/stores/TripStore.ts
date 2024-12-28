@@ -28,13 +28,23 @@ export const useTripStore = defineStore('trip', () => {
   )
 
   const addActivityToTrip = (activity: Activity, destinationKey?: string) => {
+    const newActivity: Activity = {
+      address: activity.address,
+      coordinates: activity.coordinates,
+      name: activity.name,
+      placeId: activity.placeId,
+      dateTime: activity.dateTime,
+      notes: activity.notes,
+      price: activity.price,
+      website: activity.address,
+    }
     let destination: Destination | undefined
     if (destinationKey) {
       destination = trip.value?.destinations.find(d => d.key === destinationKey)
     } else {
-      destination = findClosedDestination(activity)
+      destination = findClosedDestination(newActivity)
     }
-    destination?.activities?.push(activity)
+    destination?.activities?.push(newActivity)
     localStorage.setItem(
       'tripStore',
       JSON.stringify({
@@ -46,6 +56,7 @@ export const useTripStore = defineStore('trip', () => {
       }),
     )
   }
+
   const removeActivityFromTrip = (activity: Activity) => {
     trip.value.destinations = trip.value.destinations?.map(d => {
       d.activities = d.activities?.filter(a => a.placeId !== activity.placeId)
