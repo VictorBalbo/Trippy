@@ -104,8 +104,22 @@ const updateNights = (destination: Destination, nights: number) => {
 }
 .destination {
   text-align: start;
+  min-width: 11.75rem;
 }
 .nights {
+  min-width: 7.5rem;
   width: 7.5rem;
+}
+.activities {
+  width: 7.5rem;
+  @media (max-width: 500px) {
+    display: none;
+  }
+}
+.housing {
+  @media (max-width: 700px) {
+    display: none;
+  }
+  width: 14rem;
 }
 </style>
