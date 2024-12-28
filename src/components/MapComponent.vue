@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 import { googleKey, googleMapId } from '@/constants'
 import { useTripStore } from '@/stores'
 import type { Place } from '@/models'
-import { MapInfoWindow } from '@/components'
+import { MapInfoWindow, MapSearchComponent } from '@/components'
 import { BedIcon } from '@/components/icons'
 
 const tripStore = useTripStore()
@@ -42,7 +42,7 @@ const mapUnwatch = watch(
       return
     }
 
-    mapRef.value?.map.addListener('click', (e: google.maps.IconMouseEvent) => {
+    mapRef.value?.map.addListener('click', (e: any) => {
       console.log(e)
       if (e.placeId) {
         openCustomInfoWindow(e.placeId)
@@ -130,6 +130,13 @@ const mapUnwatch = watch(
         />
       </MarkerCluster>
     </GoogleMap>
+
+    <MapSearchComponent
+      :map="mapRef?.map"
+      @place-selected="(placeId: string) => openCustomInfoWindow(placeId)"
+      class="auto-complete-container"
+    />
+
     <Transition>
       <MapInfoWindow
         v-if="currentPlace"
@@ -150,6 +157,19 @@ const mapUnwatch = watch(
 .map {
   width: 100%;
   height: 100%;
+}
+
+.auto-complete-container {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  padding: var(--large-spacing);
+  display: flex;
+  justify-content: center;
+  .auto-complete {
+    width: 25rem;
+    max-width: 100%;
+  }
 }
 
 .v-enter-active,

@@ -17,9 +17,10 @@
     "dayjs": "^1.11.13",
     "pinia": "^2.2.4",
     "primevue": "^4.1.1",
+    "uuid": "^11.0.3",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5",
-    "vue3-google-map": "^0.21.0"
+    "vue3-google-map": "git://github.com/VictorBalbo/vue3-google-map.git"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
