@@ -43,7 +43,6 @@ const mapUnwatch = watch(
     }
 
     mapRef.value?.map.addListener('click', (e: any) => {
-      console.log(e)
       if (e.placeId) {
         openCustomInfoWindow(e.placeId)
         e.stop()

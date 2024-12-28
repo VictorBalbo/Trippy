@@ -20,7 +20,7 @@ const searchLocation = async () => {
     if (!autocomplete.value) {
       return
     }
-    console.log(map, map.getCenter())
+
     const search =
       typeof autocomplete.value === 'string'
         ? autocomplete.value
