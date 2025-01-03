@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
 import { useTripStore } from '@/stores'
-import type { Place, MapPlace } from '@/models'
+import type { Place } from '@/models'
 import { MapsService } from '@/services'
 import ScrollPanel from 'primevue/scrollpanel'
 import {
@@ -19,9 +19,9 @@ const props = defineProps<{ placeId: string }>()
 const emit = defineEmits(['close', 'locationLoaded'])
 const tripStore = useTripStore()
 
-const place = ref<MapPlace>()
+const place = ref<Place>()
 const tripActivity = computed(() =>
-  tripStore.activities?.find(a => a.placeId === props.placeId),
+  tripStore.activities?.find(a => a.place.id === props.placeId),
 )
 
 const centralizeMap = (location: Place) => emit('locationLoaded', location)
@@ -50,7 +50,7 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
         <section class="info-window-content">
           <img
             class="photo"
-            :src="MapsService.getPhotoForPlace(place.images)"
+            :src="MapsService.getPhotoForPlace(place.images ?? [])"
             :alt="place.name"
           />
           <header class="header">
@@ -69,7 +69,7 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
                 v-if="!tripActivity"
                 size="small"
                 class="add-button"
-                @click="() => tripStore.addActivityToTrip(place as Place)"
+                @click="() => tripStore.addActivityToTrip(place!)"
               >
                 <AddIcon class="icon-button" /> Add to trip
               </ButtonComponent>
@@ -78,7 +78,7 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
                 severity="danger"
                 size="small"
                 class="remove-button"
-                @click="() => tripStore.removeActivityFromTrip(place as Place)"
+                @click="() => tripStore.removeActivityFromTrip(place!)"
               >
                 <TrashIcon class="icon-button" /> Remove
               </ButtonComponent>

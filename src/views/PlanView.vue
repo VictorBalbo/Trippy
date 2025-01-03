@@ -14,8 +14,8 @@ const trip = useTripStore()
     <header class="header">
       <h1>{{ trip.name }}</h1>
       <h5>
-        {{ dayjs(trip.startDate).format('DD MMM') }} -
-        {{ dayjs(trip.endDate).format('DD MMM') }}
+        {{ dayjs(trip.startDate).utc().format('DD MMM') }} -
+        {{ dayjs(trip.endDate).utc().format('DD MMM') }}
       </h5>
     </header>
     <main>

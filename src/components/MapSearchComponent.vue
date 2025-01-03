@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { MapPlace } from '@/models'
+import type { Place } from '@/models'
 import { AutoComplete } from '@/components'
 import { MapsService } from '@/services'
 import type { GoogleMap } from 'vue3-google-map'
@@ -11,8 +11,8 @@ const { map } = defineProps<{
 }>()
 const emit = defineEmits(['placeSelected'])
 
-const autocomplete = ref<string | MapPlace>()
-const suggestion = ref<MapPlace[]>()
+const autocomplete = ref<string | Place>()
+const suggestion = ref<Place[]>()
 const isLoadingSuggestions = ref(false)
 const searchLocation = async () => {
   try {
@@ -58,7 +58,7 @@ const searchLocation = async () => {
       class="auto-complete"
       dropdown
       @complete="searchLocation"
-      @option-select="e => emit('placeSelected', e.value.placeId)"
+      @option-select="e => emit('placeSelected', e.value.id)"
     />
   </article>
 </template>

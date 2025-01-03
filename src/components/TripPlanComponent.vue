@@ -10,7 +10,7 @@ const updateNights = (destination: Destination, nights: number) => {
   let change = 0
   let isNewEndDateInValid = false
   tripStore.destinations = tripStore.destinations?.map(d => {
-    if (d.key === destination.key) {
+    if (d.id === destination.id) {
       const previousNights = dayjs(destination.endDate).diff(
         destination.startDate,
         'days',
@@ -20,12 +20,12 @@ const updateNights = (destination: Destination, nights: number) => {
         .add(change, 'd')
         .isBefore(dayjs(d.startDate), 'd')
       if (!isNewEndDateInValid) {
-        d.endDate = dayjs(d.endDate).add(change, 'd').toString()
+        d.endDate = dayjs(d.endDate).add(change, 'd').toDate()
       }
     } else {
       if (!isNewEndDateInValid) {
-        d.startDate = dayjs(d.startDate).add(change, 'd').toString()
-        d.endDate = dayjs(d.endDate).add(change, 'd').toString()
+        d.startDate = dayjs(d.startDate).add(change, 'd').toDate()
+        d.endDate = dayjs(d.endDate).add(change, 'd').toDate()
       }
     }
     return d
@@ -56,8 +56,8 @@ const updateNights = (destination: Destination, nights: number) => {
         <td class="item destination">
           <h2 class="elipsis">{{ destination.name }}</h2>
           <p>
-            {{ dayjs(destination.startDate).format('ddd DD/MM') }} -
-            {{ dayjs(destination.endDate).format('ddd DD/MM') }}
+            {{ dayjs(destination.startDate).utc().format('ddd DD/MM') }} -
+            {{ dayjs(destination.endDate).utc().format('ddd DD/MM') }}
           </p>
         </td>
         <td class="item nights">
@@ -74,7 +74,13 @@ const updateNights = (destination: Destination, nights: number) => {
           <p class="elipsis">{{ destination.activities?.length ?? 0 }}</p>
         </td>
         <td class="item housing elipsis">
-          <p class="elipsis">{{ destination?.housing?.name ?? '-' }}</p>
+          <p class="elipsis">
+            {{
+              destination?.housing?.name ??
+              destination?.housing?.place.name ??
+              '-'
+            }}
+          </p>
         </td>
       </tr>
     </tbody>
