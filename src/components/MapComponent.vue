@@ -94,7 +94,14 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
         marker-type="Bed"
       />
       <MapMarkerComponent
-        v-if="mapCenter && !activities?.find(a => a.place.id === currentPlace)"
+        v-if="
+          mapCenter &&
+          !activities?.find(a => a.place.id === currentPlace) &&
+          !transportations?.find(
+            t =>
+              t.destination.id === currentPlace || t.origin.id === currentPlace,
+          )
+        "
         :place="mapCenter"
         marker-type="New"
       />
@@ -111,10 +118,12 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
         <MapMarkerComponent
           :place="transport.origin"
           :marker-type="transport.type"
+          @click="id => openCustomInfoWindow(id)"
         />
         <MapMarkerComponent
           :place="transport.destination"
           :marker-type="transport.type"
+          @click="id => openCustomInfoWindow(id)"
         />
       </section>
     </GoogleMap>

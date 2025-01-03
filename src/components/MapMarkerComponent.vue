@@ -8,7 +8,9 @@ const { place, markerType } = defineProps<{
   place: Place
   markerType?: string
 }>()
-const emit = defineEmits(['click'])
+const emit = defineEmits<{
+  click: [id: string]
+}>()
 
 const bedIcon = useTemplateRef('BedIconRef')
 const planeIcon = useTemplateRef('PlaneIconRef')
