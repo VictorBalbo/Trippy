@@ -10,6 +10,7 @@ import ProgressSpinner from 'primevue/progressspinner'
 import CardComponent from './CardComponent.vue'
 import MapComponent from './MapComponent.vue'
 import MapInfoWindow from './MapInfoWindow.vue'
+import MapMarkerComponent from './MapMarkerComponent.vue'
 import MapSearchComponent from './MapSearchComponent.vue'
 import TripPlanComponent from './TripPlanComponent.vue'
 import InputNumber from './InputNumber.vue'
@@ -30,6 +31,7 @@ export {
   InputNumber,
   MapComponent,
   MapInfoWindow,
+  MapMarkerComponent,
   MapSearchComponent,
   TripPlanComponent,
 }

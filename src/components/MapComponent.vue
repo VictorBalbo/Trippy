@@ -1,23 +1,26 @@
 <script setup lang="ts">
 import { ref, watch, useTemplateRef } from 'vue'
-import { GoogleMap, AdvancedMarker, MarkerCluster } from 'vue3-google-map'
+import { GoogleMap, MarkerCluster, Polyline } from 'vue3-google-map'
 import { storeToRefs } from 'pinia'
 import { googleKey, googleMapId } from '@/constants'
 import { useTripStore } from '@/stores'
 import type { Place } from '@/models'
-import { MapInfoWindow, MapSearchComponent } from '@/components'
-import { BedIcon } from '@/components/icons'
+import {
+  MapInfoWindow,
+  MapMarkerComponent,
+  MapSearchComponent,
+} from '@/components'
 
 const tripStore = useTripStore()
-const { activities, housing } = storeToRefs(tripStore)
+const { id, activities, housing, transportations } = storeToRefs(tripStore)
 
 const mapCenter = ref<Place>()
 const currentPlace = ref<string>()
 
 const mapRef = useTemplateRef<typeof GoogleMap>('mapRef')
-const bedIconRef = useTemplateRef('bedIconRef')
 
 const openCustomInfoWindow = async (placeId?: string) => {
+  console.log('Open', placeId)
   if (currentPlace.value !== placeId) {
     mapCenter.value = undefined
     currentPlace.value = placeId
@@ -35,36 +38,32 @@ const centralizeOnLocation = async (location: Place) => {
   }
   mapRef.value?.map.panTo(location.coordinates)
 }
-const mapUnwatch = watch(
-  () => mapRef.value?.ready,
-  ready => {
-    if (!ready) {
-      return
+const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
+  if (!ready || !id.value) {
+    return
+  }
+
+  mapRef.value?.map.addListener('click', (e: any) => {
+    if (e.placeId) {
+      openCustomInfoWindow(e.placeId)
+      e.stop()
     }
+  })
 
-    mapRef.value?.map.addListener('click', (e: any) => {
-      if (e.placeId) {
-        openCustomInfoWindow(e.placeId)
-        e.stop()
-      }
-    })
+  // Set map boundries to fit all markers
+  const latLngBounds = mapRef.value?.api.LatLngBounds
+  const bounds = new latLngBounds()
+  activities.value?.forEach(a => bounds.extend(a.place.coordinates))
+  housing.value?.forEach(a => bounds.extend(a.place.coordinates))
+  transportations.value?.forEach(a => {
+    bounds.extend(a.origin.coordinates)
+    bounds.extend(a.destination.coordinates)
+  })
 
-    // Set map boundries to fit all markers
-    const latLngBounds = mapRef.value?.api.LatLngBounds
-    const bounds = new latLngBounds()
-    activities.value?.forEach(a => bounds.extend(a.coordinates))
-    housing.value?.forEach(a => bounds.extend(a.coordinates))
-    mapRef.value?.api.event.addListenerOnce(
-      mapRef.value?.map,
-      'bounds_changed',
-      () =>
-        mapRef.value?.map.setZoom(Math.min(mapRef.value?.map.getZoom(), 14)),
-    )
-    mapRef.value?.map.fitBounds(bounds)
+  mapRef.value?.map.fitBounds(bounds)
 
-    mapUnwatch()
-  },
-)
+  mapUnwatch()
+})
 </script>
 <template>
   <div class="map-container">
@@ -80,54 +79,44 @@ const mapUnwatch = watch(
       :scale-control="false"
     >
       <MarkerCluster>
-        <AdvancedMarker
+        <MapMarkerComponent
           v-for="marker in activities"
-          :key="marker.name"
-          :animation="2"
-          :options="{
-            position: marker.coordinates,
-            title: marker.name,
-          }"
-          :pin-options="{
-            scale: marker.placeId === currentPlace ? 1.25 : 1,
-          }"
-          @click="() => openCustomInfoWindow(marker.placeId)"
-        />
-        <AdvancedMarker
-          v-for="(marker, index) in housing"
-          :key="marker.name"
-          :animation="2"
-          :options="{
-            position: marker.coordinates,
-            title: marker.name,
-          }"
-          :pin-options="{
-            scale: marker.placeId === currentPlace ? 1.25 : 1,
-            glyph: bedIconRef?.[index]?.$el,
-          }"
-        >
-          <BedIcon
-            ref="bedIconRef"
-            :style="{
-              width: '14px',
-            }"
-          />
-        </AdvancedMarker>
-        <AdvancedMarker
-          v-if="mapCenter && !activities?.find(a => a.placeId === currentPlace)"
-          :options="{
-            position: mapCenter?.coordinates,
-            title: mapCenter?.name,
-          }"
-          :animation="2"
-          :pin-options="{
-            borderColor: '#658c96',
-            background: '#3e5871',
-            glyphColor: '#1a252f',
-            scale: 1.25,
-          }"
+          :key="marker.place.name"
+          :place="marker.place"
+          @click="() => openCustomInfoWindow(marker.place.id)"
         />
       </MarkerCluster>
+
+      <MapMarkerComponent
+        v-for="marker in housing"
+        :key="marker.place.name"
+        :place="marker.place"
+        marker-type="Bed"
+      />
+      <MapMarkerComponent
+        v-if="mapCenter && !activities?.find(a => a.place.id === currentPlace)"
+        :place="mapCenter"
+        marker-type="New"
+      />
+      <section
+        v-for="transport in transportations"
+        :key="transport.origin.id + transport.destination.id"
+      >
+        <Polyline
+          :options="{
+            path: transport.path,
+            geodesic: true,
+          }"
+        />
+        <MapMarkerComponent
+          :place="transport.origin"
+          :marker-type="transport.type"
+        />
+        <MapMarkerComponent
+          :place="transport.destination"
+          :marker-type="transport.type"
+        />
+      </section>
     </GoogleMap>
 
     <MapSearchComponent
