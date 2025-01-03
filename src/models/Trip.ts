@@ -1,9 +1,10 @@
 import type { Destination, Transportation } from '.'
 
 export interface Trip {
+  id: string
   name: string
-  startDate: string
-  endDate: string
+  startDate: Date
+  endDate: Date
   destinations: Destination[]
   transportations: Transportation[]
 }

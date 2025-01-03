@@ -1,10 +1,19 @@
+import type { Coordinates } from './Coordinates'
+import type { Place } from './Place'
+
 export interface Transportation {
-  origin: string
-  destination: string
+  id: string
+  origin: Place
+  destination: Place
+  path: Coordinates[]
   type: TransportTypes
-  startDate?: string
-  endDate?: string
+  startDate?: Date
+  endDate?: Date
   price?: number
+  company?: string
+  number?: string
+  reservation?: string
+  seat?: string
 }
 export enum TransportTypes {
   Bus = 'Bus',

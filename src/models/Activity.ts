@@ -1,6 +1,8 @@
 import type { Place } from '.'
 
-export interface Activity extends Place {
+export interface Activity {
+  id: string
+  place: Place
   dateTime?: Date
   website?: string
   notes?: string
