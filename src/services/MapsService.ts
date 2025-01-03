@@ -1,5 +1,5 @@
 import { apiUrl } from '@/constants'
-import type { Coordinates, MapPlace } from '@/models'
+import type { Coordinates, Place } from '@/models'
 import { v4 as uuid } from 'uuid'
 
 const BASE_URL = apiUrl
@@ -9,7 +9,7 @@ export class MapsService {
   static getDetaisForPlaceName = async (input: string) => {
     try {
       const response = await fetch(`${BASE_URL}/places/${input}`)
-      const data = (await response.json()) as MapPlace[]
+      const data = (await response.json()) as Place[]
       return data
     } catch (e) {
       console.error(e)
@@ -20,7 +20,7 @@ export class MapsService {
     try {
       const response = await fetch(`${BASE_URL}/place/${id}`)
       const data = await response.json()
-      return data as MapPlace
+      return data as Place
     } catch (e) {
       console.error(e)
     }
@@ -35,7 +35,7 @@ export class MapsService {
       const response = await fetch(
         `${BASE_URL}/places/autocomplete/${input}?lat=${coordinates.lat}&lng=${coordinates.lng}&radius=${radius}&token=${token}`,
       )
-      const data = (await response.json()) as MapPlace[]
+      const data = (await response.json()) as Place[]
       return data
     } catch (e) {
       console.error(e)
