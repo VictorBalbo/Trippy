@@ -3,7 +3,9 @@ import type { Place } from './Place'
 
 export interface Transportation {
   id: string
+  originId: string
   origin: Place
+  destinationId: string
   destination: Place
   path: Coordinates[]
   type: TransportTypes

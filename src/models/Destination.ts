@@ -1,11 +1,11 @@
-import type { Activity, Coordinates, Housing } from '.'
+import type { Activity, Housing, Place } from '.'
 
 export interface Destination {
   id: string
-  name: string
-  coordinates: Coordinates
+  placeId: string
+  place: Place
   housing?: Housing
   activities?: Activity[]
-  startDate?: Date
-  endDate?: Date
+  startDate: Date
+  endDate: Date
 }

@@ -4,28 +4,30 @@ import type {
   Housing,
   Place,
   Transportation,
-  Trip,
 } from '@/models'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { distanceBetweenPoints } from '@/models/Coordinates'
+import { TripService } from '@/services'
+
+const destinationCategory = 'locality'
 
 export const useTripStore = defineStore('trip', () => {
-  const id = ref<string>()
-  const name = ref<string>()
-  const startDate = ref<Date>()
-  const endDate = ref<Date>()
-  const destinations = ref<Destination[]>()
-  const transportations = ref<Transportation[]>()
+  const id = ref<string>('')
+  const name = ref<string>('')
+  const startDate = ref<Date>(new Date())
+  const endDate = ref<Date>(new Date())
+  const destinations = ref<Destination[]>([])
+  const transportations = ref<Transportation[]>([])
 
   const activities = computed(() =>
     destinations.value
-      ?.filter(d => d.activities?.length)
+      .filter(d => d.activities?.length)
       .reduce<Activity[]>((acc, d) => acc.concat(d.activities ?? []), []),
   )
   const housing = computed(() =>
     destinations.value
-      ?.filter(d => d.housing)
+      .filter(d => d.housing)
       .reduce<Housing[]>((acc, d) => [...acc, d.housing!], []),
   )
 
@@ -35,52 +37,56 @@ export const useTripStore = defineStore('trip', () => {
       (housing.value?.reduce((acc, d) => acc + (d.price ?? 0), 0) ?? 0),
   )
 
-  const addActivityToTrip = (place: Place, destinationId?: string) => {
-    const newActivity: Activity = {
-      id: crypto.randomUUID(),
-      place: place,
-    }
-    let destination: Destination | undefined
-    if (destinationId) {
-      destination = destinations.value?.find(d => d.id === destinationId)
+  const addPlaceToTrip = async (place: Place) => {
+    if (place.categories?.includes(destinationCategory)) {
+      addDestinationToTrip(place)
     } else {
-      destination = findClosedDestination(newActivity.place)
+      addActivityToTrip(place)
     }
-    destination?.activities?.push(newActivity)
-    localStorage.setItem(
-      'tripStore',
-      JSON.stringify({
-        name: name.value,
-        startDate: startDate.value,
-        endDate: endDate.value,
-        destinations: destinations.value,
-        transportations: transportations.value,
-      }),
-    )
+    saveTrip()
   }
 
   const removeActivityFromTrip = (place: Place) => {
-    destinations.value = destinations.value?.map(d => {
+    destinations.value = destinations.value.map(d => {
       d.activities = d.activities?.filter(a => a.place.id !== place.id)
       return d
     })
-    localStorage.setItem(
-      'tripStore',
-      JSON.stringify({
-        name: name.value,
-        startDate: startDate.value,
-        endDate: endDate.value,
-        destinations: destinations.value,
-        transportations: transportations.value,
-      }),
-    )
+    saveTrip()
   }
 
+  // Private
+  const addDestinationToTrip = (place: Place) => {
+    const lastDestination = destinations.value.reduce((latest, d) =>
+      d.startDate > latest.startDate ? d : latest,
+    )
+    const newDestination: Destination = {
+      id: crypto.randomUUID(),
+      place: place,
+      placeId: place.id,
+      startDate: lastDestination.endDate,
+      endDate: lastDestination.endDate,
+    }
+    destinations.value.push(newDestination)
+  }
+
+  const addActivityToTrip = (place: Place) => {
+    const newActivity: Activity = {
+      id: crypto.randomUUID(),
+      place: place,
+      placeId: place.id,
+    }
+
+    const destination = findClosedDestination(newActivity.place)
+    destination?.activities?.push(newActivity)
+  }
   const findClosedDestination = (place: Place) => {
     let closestDestination: Destination | undefined
     let closestDestinationDistance: number = Number.MAX_VALUE
-    destinations.value?.forEach(d => {
-      const distance = distanceBetweenPoints(d.coordinates, place.coordinates)
+    destinations.value.forEach(d => {
+      const distance = distanceBetweenPoints(
+        d.place.coordinates,
+        place.coordinates,
+      )
       if (!closestDestination || distance < closestDestinationDistance) {
         closestDestination = d
         closestDestinationDistance = distance
@@ -89,14 +95,30 @@ export const useTripStore = defineStore('trip', () => {
     return closestDestination!
   }
 
-  const setTrip = (trip: Trip) => {
-    id.value = trip.id
-    name.value = trip.name
-    destinations.value = trip.destinations
-    transportations.value = trip.transportations
-    startDate.value = trip.startDate
-    endDate.value = trip.endDate
+  const saveTrip = async () => {
+    await TripService.setTripDetails({
+      id: id.value,
+      name: name.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      destinations: destinations.value,
+      transportations: transportations.value,
+    })
   }
+  const loadTrip = async () => {
+    const trip = await TripService.getTripDetails(
+      '63c54b55-d3fa-4224-9c22-408b41f8ace9',
+    )
+    if (trip) {
+      id.value = trip.id
+      name.value = trip.name
+      destinations.value = trip.destinations ?? []
+      transportations.value = trip.transportations
+      startDate.value = trip.startDate
+      endDate.value = trip.endDate
+    }
+  }
+  loadTrip()
 
   return {
     id,
@@ -108,8 +130,8 @@ export const useTripStore = defineStore('trip', () => {
     activities,
     housing,
     cost,
-    addActivityToTrip,
+    addPlaceToTrip,
     removeActivityFromTrip,
-    setTrip,
+    saveTrip,
   }
 })

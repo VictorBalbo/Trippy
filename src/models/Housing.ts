@@ -2,6 +2,7 @@ import type { Place } from './Place'
 
 export interface Housing {
   id: string
+  placeId: string
   place: Place
   name: string
   checkin?: Date
