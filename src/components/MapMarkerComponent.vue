@@ -4,9 +4,16 @@ import { BedIcon, PlaneIcon, TrainIcon } from '@/components/icons'
 import type { Place } from '@/models'
 import { ref, useTemplateRef } from 'vue'
 
-const { place, markerType } = defineProps<{
+const {
+  place,
+  markerType,
+  label,
+  zIndex = 0,
+} = defineProps<{
   place: Place
   markerType?: string
+  label?: string
+  zIndex?: number
 }>()
 const emit = defineEmits<{
   click: [id: string]
@@ -22,12 +29,14 @@ const glyphColor = ref<string>()
 
 const getIconForTransportation = () => {
   switch (markerType) {
+    case 'Destination':
+      return label
     case 'Bed':
-      return bedIcon
+      return bedIcon.value?.$el
     case 'Plane':
-      return planeIcon
+      return planeIcon.value?.$el
     case 'Train':
-      return trainIcon
+      return trainIcon.value?.$el
     default:
       return
   }
@@ -36,15 +45,20 @@ const getColorFromVariables = (color: string) =>
   getComputedStyle(document.documentElement).getPropertyValue(color)
 const getMarkerColor = () => {
   switch (markerType) {
-    case 'Bed':
+    case 'Destination':
       background.value = getColorFromVariables('--color-blue')
       borderColor.value = getColorFromVariables('--color-dark-blue')
       glyphColor.value = getColorFromVariables('--color-light-gray')
       break
-    case 'Plane':
-    case 'Train':
+    case 'Bed':
       background.value = getColorFromVariables('--color-green')
       borderColor.value = getColorFromVariables('--color-dark-green')
+      glyphColor.value = getColorFromVariables('--color-light-gray')
+      break
+    case 'Plane':
+    case 'Train':
+      background.value = getColorFromVariables('--color-purple')
+      borderColor.value = getColorFromVariables('--color-dark-purple')
       glyphColor.value = getColorFromVariables('--color-light-gray')
       break
     case 'New':
@@ -65,35 +79,37 @@ getMarkerColor()
     :options="{
       position: place.coordinates,
       title: place.name,
+      zIndex: zIndex,
     }"
     :pinOptions="{
       // scale: place.id === currentPlace ? 1.25 : 1,
       glyphColor: glyphColor,
-      glyph: getIconForTransportation()?.value?.$el,
+      glyph: getIconForTransportation(),
       background: background,
       borderColor: borderColor,
     }"
     @click="() => emit('click', place.id)"
-  />
-  <BedIcon
-    v-if="markerType === 'Bed'"
-    ref="BedIconRef"
-    :style="{
-      width: '14px',
-    }"
-  />
-  <PlaneIcon
-    v-else-if="markerType === 'Plane'"
-    ref="PlaneIconRef"
-    :style="{
-      width: '14px',
-    }"
-  />
-  <TrainIcon
-    v-else-if="markerType === 'Train'"
-    ref="TrainIconRef"
-    :style="{
-      width: '14px',
-    }"
-  />
+  >
+    <BedIcon
+      v-if="markerType === 'Bed'"
+      ref="BedIconRef"
+      :style="{
+        width: '14px',
+      }"
+    />
+    <PlaneIcon
+      v-else-if="markerType === 'Plane'"
+      ref="PlaneIconRef"
+      :style="{
+        width: '14px',
+      }"
+    />
+    <TrainIcon
+      v-else-if="markerType === 'Train'"
+      ref="TrainIconRef"
+      :style="{
+        width: '14px',
+      }"
+    />
+  </AdvancedMarker>
 </template>

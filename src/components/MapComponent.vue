@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, useTemplateRef } from 'vue'
-import { GoogleMap, MarkerCluster, Polyline } from 'vue3-google-map'
+import { GoogleMap, Polyline } from 'vue3-google-map'
 import { storeToRefs } from 'pinia'
 import { googleKey, googleMapId } from '@/constants'
 import { useTripStore } from '@/stores'
@@ -11,8 +11,21 @@ import {
   MapSearchComponent,
 } from '@/components'
 
+const {
+  showCities: showDestinations = true,
+  showActivities = true,
+  showTransportations = false,
+  showHousing = true,
+} = defineProps<{
+  showCities?: boolean
+  showActivities?: boolean
+  showTransportations?: boolean
+  showHousing?: boolean
+}>()
+
 const tripStore = useTripStore()
-const { id, activities, housing, transportations } = storeToRefs(tripStore)
+const { id, activities, destinations, housing, transportations } =
+  storeToRefs(tripStore)
 
 const mapCenter = ref<Place>()
 const currentPlace = ref<string>()
@@ -53,12 +66,13 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
   // Set map boundries to fit all markers
   const latLngBounds = mapRef.value?.api.LatLngBounds
   const bounds = new latLngBounds()
-  activities.value?.forEach(a => bounds.extend(a.place.coordinates))
-  housing.value?.forEach(a => bounds.extend(a.place.coordinates))
-  transportations.value?.forEach(a => {
-    bounds.extend(a.origin.coordinates)
-    bounds.extend(a.destination.coordinates)
-  })
+
+  if (destinations.value && destinations.value.length > 1) {
+    destinations.value.forEach(d => bounds.extend(d.place.coordinates))
+  } else {
+    activities.value?.forEach(a => bounds.extend(a.place.coordinates))
+    housing.value?.forEach(a => bounds.extend(a.place.coordinates))
+  }
 
   mapRef.value?.map.fitBounds(bounds)
 
@@ -78,21 +92,42 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
       :fullscreen-control="false"
       :scale-control="false"
     >
-      <MarkerCluster>
+      <!-- Destinations -->
+      <article v-if="showDestinations">
+        <MapMarkerComponent
+          v-for="(destination, index) in destinations"
+          :key="destination.id"
+          :place="destination.place"
+          :z-index="2"
+          :label="`${index + 1}`"
+          marker-type="Destination"
+          @click="() => openCustomInfoWindow(destination.place.id)"
+        />
+      </article>
+
+      <!-- Activities -->
+      <article v-if="showActivities">
         <MapMarkerComponent
           v-for="marker in activities"
           :key="marker.place.name"
           :place="marker.place"
+          :z-index="0"
           @click="() => openCustomInfoWindow(marker.place.id)"
         />
-      </MarkerCluster>
+      </article>
 
-      <MapMarkerComponent
-        v-for="marker in housing"
-        :key="marker.place.name"
-        :place="marker.place"
-        marker-type="Bed"
-      />
+      <!-- Housing -->
+      <article v-if="showHousing">
+        <MapMarkerComponent
+          v-for="marker in housing"
+          :key="marker.place.name"
+          :place="marker.place"
+          :z-index="1"
+          marker-type="Bed"
+        />
+      </article>
+
+      <!-- New Activity -->
       <MapMarkerComponent
         v-if="
           mapCenter &&
@@ -103,28 +138,35 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
           )
         "
         :place="mapCenter"
+        :z-index="0"
         marker-type="New"
       />
-      <section
-        v-for="transport in transportations"
-        :key="transport.origin.id + transport.destination.id"
-      >
-        <Polyline
-          :options="{
-            path: transport.path,
-            geodesic: true,
-          }"
-        />
-        <MapMarkerComponent
-          :place="transport.origin"
-          :marker-type="transport.type"
-          @click="id => openCustomInfoWindow(id)"
-        />
-        <MapMarkerComponent
-          :place="transport.destination"
-          :marker-type="transport.type"
-          @click="id => openCustomInfoWindow(id)"
-        />
+
+      <!-- Transportations -->
+      <section v-if="showTransportations">
+        <article
+          v-for="transport in transportations"
+          :key="transport.origin.id + transport.destination.id"
+        >
+          <Polyline
+            :options="{
+              path: transport.path,
+              geodesic: true,
+            }"
+          />
+          <MapMarkerComponent
+            :place="transport.origin"
+            :marker-type="transport.type"
+            :z-index="0"
+            @click="id => openCustomInfoWindow(id)"
+          />
+          <MapMarkerComponent
+            :place="transport.destination"
+            :marker-type="transport.type"
+            :z-index="0"
+            @click="id => openCustomInfoWindow(id)"
+          />
+        </article>
       </section>
     </GoogleMap>
 
