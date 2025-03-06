@@ -59,6 +59,19 @@ const searchLocation = async () => {
       dropdown
       @complete="searchLocation"
       @option-select="e => emit('placeSelected', e.value.id)"
-    />
+    >
+      <template #option="{ option }: { option: Place }">
+        <article class="option">
+          <h2>{{ option.name }}</h2>
+          <p>{{ option.address }}</p>
+        </article>
+      </template>
+    </AutoComplete>
   </article>
 </template>
+<style scoped>
+.option {
+  display: flex;
+  flex-direction: column;
+}
+</style>
