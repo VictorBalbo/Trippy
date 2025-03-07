@@ -20,8 +20,10 @@ const emit = defineEmits(['close', 'locationLoaded'])
 const tripStore = useTripStore()
 
 const place = ref<Place>()
-const tripActivity = computed(() =>
-  tripStore.activities?.find(a => a.place.id === props.placeId),
+const isTripActivityOrDestination = computed(
+  () =>
+    tripStore.destinations?.find(a => a.place.id === props.placeId) ||
+    tripStore.activities?.find(a => a.place.id === props.placeId),
 )
 
 const centralizeMap = (location: Place) => emit('locationLoaded', location)
@@ -66,19 +68,24 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
             </article>
             <article class="actions">
               <ButtonComponent
-                v-if="!tripActivity"
+                v-if="!isTripActivityOrDestination"
                 size="small"
                 class="add-button"
                 @click="() => tripStore.addPlaceToTrip(place!)"
               >
-                <AddIcon class="icon-button" /> Add to trip
+                <AddIcon class="icon-button" />
+                {{
+                  place.categories?.includes('locality')
+                    ? 'Add Destination'
+                    : 'Add to trip'
+                }}
               </ButtonComponent>
               <ButtonComponent
                 v-else
                 severity="danger"
                 size="small"
                 class="remove-button"
-                @click="() => tripStore.removeActivityFromTrip(place!)"
+                @click="() => tripStore.removePlaceFromTrip(place!)"
               >
                 <TrashIcon class="icon-button" /> Remove
               </ButtonComponent>

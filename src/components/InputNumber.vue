@@ -38,6 +38,8 @@ const emit = defineEmits(['update:modelValue'])
       text-align: center;
       box-shadow: 0 0px 4px var(--color-border);
       font-size: 0.875rem;
+      width: 2.5rem;
+      flex-grow: 0;
     }
     .p-inputnumber-horizontal .p-inputnumber-button {
       border-radius: 0.5rem;

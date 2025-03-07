@@ -17,6 +17,12 @@
     --color-subheader: var(--color-gray);
     --color-text: var(--color-dark-gray);
     --color-link: var(--color-blue);
+
+    --color-text-blue: var(--color-dark-blue);
+    --color-text-green: var(--color-dark-green);
+    --color-background-blue: var(--color-light-blue);
+    --color-background-green: var(--color-light-green);
+    --color-background-red: var(--color-light-red);
   }
 }
 
@@ -30,6 +36,12 @@
     --color-subheader: var(--color-gray);
     --color-text: var(--color-light-gray);
     --color-link: var(--color-light-blue);
+
+    --color-text-blue: var(--color-light-blue);
+    --color-text-green: var(--color-light-green);
+    --color-background-blue: var(--color-dark-blue);
+    --color-background-green: var(--color-dark-green);
+    --color-background-red: var(--color-dark-red);
   }
 }
 

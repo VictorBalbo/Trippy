@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  CardComponent,
-  DividerComponent,
-  TripPlanComponent,
-} from '@/components'
+import { CardComponent, TripPlanComponent } from '@/components'
 import { useTripStore } from '@/stores'
 import dayjs from 'dayjs'
 
@@ -20,8 +16,6 @@ const trip = useTripStore()
     </header>
     <main>
       <CardComponent class="card-info">
-        <h2>Trip Plan</h2>
-        <DividerComponent class="divider" />
         <TripPlanComponent />
       </CardComponent>
     </main>

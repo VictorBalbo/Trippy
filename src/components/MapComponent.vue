@@ -14,7 +14,7 @@ import {
 const {
   showCities: showDestinations = true,
   showActivities = true,
-  showTransportations = false,
+  showTransportations = true,
   showHousing = true,
 } = defineProps<{
   showCities?: boolean

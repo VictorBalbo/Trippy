@@ -46,11 +46,12 @@ export const useTripStore = defineStore('trip', () => {
     saveTrip()
   }
 
-  const removeActivityFromTrip = (place: Place) => {
-    destinations.value = destinations.value.map(d => {
-      d.activities = d.activities?.filter(a => a.place.id !== place.id)
-      return d
-    })
+  const removePlaceFromTrip = async (place: Place) => {
+    if (place.categories?.includes(destinationCategory)) {
+      removeDestinationFromTrip(place)
+    } else {
+      removeActivityFromTrip(place)
+    }
     saveTrip()
   }
 
@@ -68,6 +69,10 @@ export const useTripStore = defineStore('trip', () => {
     }
     destinations.value.push(newDestination)
   }
+  const removeDestinationFromTrip = (place: Place) => {
+    destinations.value = destinations.value.filter(d => d.place.id !== place.id)
+    saveTrip()
+  }
 
   const addActivityToTrip = (place: Place) => {
     const newActivity: Activity = {
@@ -79,6 +84,14 @@ export const useTripStore = defineStore('trip', () => {
     const destination = findClosedDestination(newActivity.place)
     destination?.activities?.push(newActivity)
   }
+  const removeActivityFromTrip = (place: Place) => {
+    destinations.value = destinations.value.map(d => {
+      d.activities = d.activities?.filter(a => a.place.id !== place.id)
+      return d
+    })
+    saveTrip()
+  }
+
   const findClosedDestination = (place: Place) => {
     let closestDestination: Destination | undefined
     let closestDestinationDistance: number = Number.MAX_VALUE
@@ -131,7 +144,7 @@ export const useTripStore = defineStore('trip', () => {
     housing,
     cost,
     addPlaceToTrip,
-    removeActivityFromTrip,
+    removePlaceFromTrip,
     saveTrip,
   }
 })

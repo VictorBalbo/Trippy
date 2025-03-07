@@ -4,6 +4,7 @@ import Draggable from 'vuedraggable'
 import { InputNumber } from '.'
 import { useTripStore } from '@/stores'
 import type { Destination } from '@/models'
+import { BadgeComponent } from '@/components'
 import { BedIcon, HikingIcon, MoonIcon } from '@/components/icons'
 import { storeToRefs } from 'pinia'
 
@@ -58,28 +59,20 @@ const onDestinationReorder = () => {
 </script>
 
 <template>
-  <table class="plan-table">
-    <thead>
-      <tr>
-        <th class="destination"></th>
-        <th class="nights">
-          <article class="header"><MoonIcon class="icon" />Nights</article>
-        </th>
-        <th class="activities">
-          <article class="header">
-            <HikingIcon class="icon" />Activities
-          </article>
-        </th>
-        <th class="housing">
-          <article class="header"><BedIcon class="icon" />Housing</article>
-        </th>
-      </tr>
-    </thead>
+  <section class="plan-list">
+    <section class="plan-header">
+      <article class="item destination"></article>
+      <article class="item nights"><MoonIcon class="icon" />Nights</article>
+      <article class="item activities">
+        <HikingIcon class="icon" />Activities
+      </article>
+      <article class="item housing"><BedIcon class="icon" />Housing</article>
+    </section>
     <Draggable
       v-model="destinations"
       item-key="id"
-      handle=".destination"
-      tag="tbody"
+      handle=".badge"
+      tag="article"
       :animation="200"
       :component-data="{
         tag: 'TransitionGroup',
@@ -87,78 +80,130 @@ const onDestinationReorder = () => {
       }"
       @change="onDestinationReorder"
     >
-      <template #item="{ element }">
-        <tr>
-          <td class="item destination">
+      <template
+        #item="{ element, index }: { element: Destination; index: number }"
+      >
+        <section class="plan-body">
+          <article class="item badge">
+            <BadgeComponent :value="index + 1" />
+          </article>
+          <article class="item destination">
             <h2 class="elipsis">{{ element.place.name }}</h2>
             <p>
               {{ dayjs(element.startDate).utc().format('ddd DD/MM') }} -
               {{ dayjs(element.endDate).utc().format('ddd DD/MM') }}
             </p>
-          </td>
-          <td class="item nights">
+          </article>
+          <article class="item nights">
             <InputNumber
               title="Nights"
               :value="dayjs(element.endDate).diff(element.startDate, 'days')"
               @update:model-value="(e: number) => updateNights(element, e)"
               :min="0"
             />
-          </td>
-          <td class="item activities">
+          </article>
+          <article class="item activities">
             <p class="elipsis">{{ element.activities?.length ?? 0 }}</p>
-          </td>
-          <td class="item housing elipsis">
-            <p class="elipsis">
-              {{
-                element?.housing?.name ?? element?.housing?.place.name ?? '-'
-              }}
-            </p>
-          </td>
-        </tr>
+          </article>
+          <article class="item housing">
+            <span class="elipsis">
+              {{ element.housing?.name ?? element?.housing?.place.name ?? '-' }}
+            </span>
+            <p v-if="element.housing" class="booked">Booked</p>
+          </article>
+        </section>
       </template>
     </Draggable>
-  </table>
+  </section>
 </template>
 
 <style scoped>
-.plan-table {
+.plan-list {
   width: 100%;
 }
-.icon {
-  width: 1rem;
-  height: 1rem;
-  fill: white;
-}
-.header {
+.plan-header {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: row;
+  .item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 3rem;
+  }
   .icon {
+    width: 1rem;
+    height: 1rem;
     margin-right: 0.25rem;
   }
 }
-.item {
-  text-align: center;
+.plan-body {
+  display: flex;
+  flex-direction: row;
   height: 100%;
+  padding: var(--small-spacing) 0;
+  border-top: 1px solid var(--color-border);
+  .item {
+    height: 4rem;
+    padding: var(--small-spacing);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: var(--small-spacing);
+    transition: var(--default-transition);
+  }
+  .destination {
+    text-align: start;
+    &:hover {
+      background-color: var(--color-background-blue);
+    }
+  }
+  .nights {
+    padding: 0;
+  }
+  .activities {
+    &:hover {
+      background-color: var(--color-background-red);
+    }
+  }
+  .housing {
+    .booked {
+      color: var(--color-text-green);
+    }
+    &:hover {
+      background-color: var(--color-background-green);
+    }
+  }
+}
+/* Badge + Destination + Nights + Activities + Housing = 41rem */
+.badge {
+  padding: 0 !important;
+  width: 1.5rem;
+  margin-right: var(--small-spacing);
+  cursor: grab;
 }
 .destination {
-  text-align: start;
-  min-width: 11.75rem;
+  min-width: 11.5rem;
+  width: 100%;
 }
 .nights {
   min-width: 7.5rem;
-  width: 7.5rem;
 }
 .activities {
-  width: 7.5rem;
-  @media (max-width: 500px) {
-    display: none;
+  min-width: 7rem;
+  @media (max-width: 510px) {
+    display: none !important;
   }
 }
 .housing {
+  min-width: 13rem;
   @media (max-width: 700px) {
-    display: none;
+    display: none !important;
   }
-  width: 14rem;
+}
+.elipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 </style>
