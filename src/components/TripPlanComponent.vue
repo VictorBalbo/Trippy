@@ -15,10 +15,7 @@ const updateNights = (destination: Destination, nights: number) => {
   let change = 0
   let isNewEndDateInValid = false
   destinations.value = tripStore.destinations
-    .sort(
-      (a, b) =>
-        new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
-    )
+    .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
     .map(d => {
       if (d.id === destination.id) {
         const previousNights = dayjs(destination.endDate).diff(

@@ -8,4 +8,6 @@ export interface Activity {
   website?: string
   notes?: string
   price?: number
+  currency?: string
+  booked?: boolean
 }

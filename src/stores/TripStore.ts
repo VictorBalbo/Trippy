@@ -9,6 +9,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { distanceBetweenPoints } from '@/models/Coordinates'
 import { TripService } from '@/services'
+import { debounce } from '@/utils/utils'
 
 const destinationCategory = 'locality'
 
@@ -145,6 +146,6 @@ export const useTripStore = defineStore('trip', () => {
     cost,
     addPlaceToTrip,
     removePlaceFromTrip,
-    saveTrip,
+    saveTrip: debounce(saveTrip),
   }
 })

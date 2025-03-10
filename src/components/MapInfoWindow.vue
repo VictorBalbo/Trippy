@@ -12,6 +12,8 @@ import {
   ButtonComponent,
   CardComponent,
   ProgressSpinner,
+  DatePicker,
+  InputMoney,
 } from '@/components'
 import { AddIcon, GlobeIcon, StarIcon, TrashIcon } from '@/components/icons'
 
@@ -20,14 +22,24 @@ const emit = defineEmits(['close', 'locationLoaded'])
 const tripStore = useTripStore()
 
 const place = ref<Place>()
-const isTripActivityOrDestination = computed(
-  () =>
-    tripStore.destinations?.find(a => a.place.id === props.placeId) ||
-    tripStore.activities?.find(a => a.place.id === props.placeId),
+const isTripDestination = computed(() =>
+  tripStore.destinations?.find(a => a.place.id === props.placeId),
+)
+const isTripActivity = computed(() =>
+  tripStore.activities?.find(a => a.place.id === props.placeId),
+)
+const destinationForActivity = computed(() =>
+  tripStore.destinations?.find(a =>
+    a.activities?.find(a => a.place.id === props.placeId),
+  ),
 )
 
 const centralizeMap = (location: Place) => emit('locationLoaded', location)
 const closeWindow = () => emit('close')
+
+const saveActivityDate = () => {
+  tripStore.saveTrip()
+}
 
 watchEffect(async () => {
   place.value = undefined
@@ -68,7 +80,7 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
             </article>
             <article class="actions">
               <ButtonComponent
-                v-if="!isTripActivityOrDestination"
+                v-if="!isTripDestination && !isTripActivity"
                 size="small"
                 class="add-button"
                 @click="() => tripStore.addPlaceToTrip(place!)"
@@ -103,7 +115,22 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
             </article>
           </header>
           <main class="body">
-            <CardComponent class="card-info">
+            <CardComponent v-if="isTripActivity" class="card-info">
+              <DatePicker
+                v-model="isTripActivity.dateTime"
+                :minDate="destinationForActivity!.startDate"
+                :maxDate="destinationForActivity!.endDate"
+                @change="() => saveActivityDate()"
+              />
+            </CardComponent>
+            <CardComponent v-if="isTripActivity" class="card-info">
+              <InputMoney
+                v-model:price="isTripActivity.price"
+                v-model:currency="isTripActivity.currency"
+                @change="() => saveActivityDate()"
+              />
+            </CardComponent>
+            <CardComponent v-if="place.description" class="card-info">
               <h3>Description</h3>
               <p>{{ place.description }}</p>
             </CardComponent>
