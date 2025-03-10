@@ -8,11 +8,11 @@ const trip = useTripStore()
 <template>
   <div class="plan-view">
     <header class="header">
-      <h1>{{ trip.name }}</h1>
-      <h5>
+      <h2>{{ trip.name }}</h2>
+      <small>
         {{ dayjs(trip.startDate).utc().format('DD MMM') }} -
         {{ dayjs(trip.endDate).utc().format('DD MMM') }}
-      </h5>
+      </small>
     </header>
     <main>
       <CardComponent class="card-info">

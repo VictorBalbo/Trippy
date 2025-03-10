@@ -11,7 +11,7 @@ const currencies = ['BRL', 'EUR', 'CHF', 'USD']
 const price = defineModel<number>('price')
 let initialPrice = price.value
 const currency = defineModel<string>('currency')
-let initialCurrency: string | undefined | null = currency.value
+let initialCurrency: string | undefined = currency.value
 
 defineProps<{
   priceLabel?: string
@@ -42,7 +42,7 @@ const onChange = () => {
         :min="0"
         :minFractionDigits="2"
         :maxFractionDigits="2"
-        :currency="currency ?? 'BRL'"
+        :currency="currency ?? currencies[0]"
         mode="currency"
         fluid
         @update:modelValue="onChange"

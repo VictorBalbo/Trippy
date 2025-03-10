@@ -68,15 +68,13 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
             :alt="place.name"
           />
           <header class="header">
-            <h2>{{ place.name }}</h2>
-            <article>
-              <h5 v-if="place.categories?.length">
-                {{ place.categories[0] }}
-              </h5>
-            </article>
+            <h3>{{ place.name }}</h3>
+            <small v-if="place.categories?.length">
+              {{ place.categories[0] }}
+            </small>
             <article v-if="place.rating" class="rating">
               <StarIcon class="icon" />
-              <h3>{{ place.rating }} / 5</h3>
+              <p>{{ place.rating }} / 5</p>
             </article>
             <article class="actions">
               <ButtonComponent
@@ -131,32 +129,34 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
               />
             </CardComponent>
             <CardComponent v-if="place.description" class="card-info">
-              <h3>Description</h3>
+              <h4>Description</h4>
               <p>{{ place.description }}</p>
             </CardComponent>
             <CardComponent class="card-info">
-              <h3>Address</h3>
-              <a :href="place.mapsUrl" target="_blank" rel="noopener">{{
-                place.address
-              }}</a>
+              <h4>Address</h4>
+              <a :href="place.mapsUrl" target="_blank" rel="noopener">
+                {{ place.address }}
+              </a>
             </CardComponent>
             <CardComponent v-if="place.phoneNumber" class="card-info">
-              <h3>Phone</h3>
-              <a :href="`tel:${place.phoneNumber}`">{{ place.phoneNumber }}</a>
+              <h4>Phone</h4>
+              <a :href="`tel:${place.phoneNumber}`">
+                {{ place.phoneNumber }}
+              </a>
             </CardComponent>
             <CardComponent v-if="place.website" class="card-info website-card">
-              <h3>Website</h3>
-              <a :href="place.website" target="_blank" rel="noopener">{{
-                sanitizeUrl(place.website)
-              }}</a>
+              <h4>Website</h4>
+              <a :href="place.website" target="_blank" rel="noopener">
+                {{ sanitizeUrl(place.website) }}
+              </a>
             </CardComponent>
             <CardComponent v-if="place.openingHours" class="card-info">
               <Accordion>
                 <AccordionPanel value="1">
                   <AccordionHeader>
                     <section class="accordion-header">
-                      <h3>Opening Hours</h3>
-                      <h5 class="accordion-header-text">
+                      <h4>Opening Hours</h4>
+                      <small class="accordion-header-text">
                         {{
                           place.openingHours.weekday_text.find(o =>
                             o.startsWith(
@@ -166,7 +166,7 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
                             ),
                           )
                         }}
-                      </h5>
+                      </small>
                     </section>
                   </AccordionHeader>
                   <AccordionContent>

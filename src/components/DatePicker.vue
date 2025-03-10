@@ -35,7 +35,6 @@ const onOk = () => {
       dateFormat="DD, dd/mm/yy -"
       :minDate="minDate"
       :maxDate="maxDate"
-      variant="filled"
       showTime
       fluid
       showIcon

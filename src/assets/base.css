@@ -61,6 +61,7 @@ body {
     color var(--default-transition),
     background-color var(--default-transition);
   line-height: 1.6;
+  font-size: 1rem;
   font-family: Poppins;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -69,40 +70,45 @@ body {
 
 h1 {
   color: var(--color-header);
-  font-size: 1.25rem;
+  font-size: 3rem;
   font-weight: 600;
 }
 
 h2 {
   color: var(--color-header);
-  font-size: 1rem;
+  font-size: 2rem;
   font-weight: 600;
 }
 
 h3 {
   color: var(--color-header);
-  font-size: 0.875rem;
+  font-size: 1.5rem;
   font-weight: 600;
 }
 
 h4 {
-  color: var(--color-subheader);
-  font-size: 0.875rem;
+  color: var(--color-header);
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
-h5 {
-  color: var(--color-subheader);
-  font-size: 0.875rem;
+b {
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 p {
   color: var(--color-text);
+  font-weight: 400;
+}
+
+small {
+  color: var(--color-subheader);
+  font-weight: 400;
   font-size: 0.875rem;
 }
 
 a {
   color: var(--color-link);
   text-decoration: none;
-  font-size: 0.875rem;
 }

@@ -85,11 +85,11 @@ const onDestinationReorder = () => {
             <BadgeComponent :value="index + 1" />
           </article>
           <article class="item destination">
-            <h2 class="elipsis">{{ element.place.name }}</h2>
-            <p>
+            <b class="elipsis">{{ element.place.name }}</b>
+            <small>
               {{ dayjs(element.startDate).utc().format('ddd DD/MM') }} -
               {{ dayjs(element.endDate).utc().format('ddd DD/MM') }}
-            </p>
+            </small>
           </article>
           <article class="item nights">
             <InputNumber
@@ -103,10 +103,10 @@ const onDestinationReorder = () => {
             <p class="elipsis">{{ element.activities?.length ?? 0 }}</p>
           </article>
           <article class="item housing">
-            <span class="elipsis">
+            <p class="elipsis">
               {{ element.housing?.name ?? element?.housing?.place.name ?? '-' }}
-            </span>
-            <p v-if="element.housing" class="booked">Booked</p>
+            </p>
+            <small v-if="element.housing" class="booked">Booked</small>
           </article>
         </section>
       </template>

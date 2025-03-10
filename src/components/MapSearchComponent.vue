@@ -62,8 +62,8 @@ const searchLocation = async () => {
     >
       <template #option="{ option }: { option: Place }">
         <article class="option">
-          <h2>{{ option.name }}</h2>
-          <p>{{ option.address }}</p>
+          <p>{{ option.name }}</p>
+          <small>{{ option.address }}</small>
         </article>
       </template>
     </AutoComplete>
