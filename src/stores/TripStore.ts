@@ -34,8 +34,8 @@ export const useTripStore = defineStore('trip', () => {
 
   const cost = computed(
     () =>
-      (activities.value?.reduce((acc, d) => acc + (d.price ?? 0), 0) ?? 0) +
-      (housing.value?.reduce((acc, d) => acc + (d.price ?? 0), 0) ?? 0),
+      activities.value?.reduce((acc, d) => acc + (d.price?.value ?? 0), 0) +
+      housing.value?.reduce((acc, d) => acc + (d.price.value ?? 0), 0),
   )
 
   const addPlaceToTrip = async (place: Place) => {
@@ -80,6 +80,7 @@ export const useTripStore = defineStore('trip', () => {
       id: crypto.randomUUID(),
       place: place,
       placeId: place.id,
+      price: { value: undefined, currency: undefined },
     }
 
     const destination = findClosedDestination(newActivity.place)

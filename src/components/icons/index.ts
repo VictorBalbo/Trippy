@@ -1,4 +1,5 @@
 import AddIcon from '@/components/icons/AddIcon.vue'
+import ArrowRight from '@/components/icons/ArrowRight.vue'
 import BedIcon from '@/components/icons/BedIcon.vue'
 import GlobeIcon from '@/components/icons/GlobeIcon.vue'
 import HikingIcon from '@/components/icons/HikingIcon.vue'
@@ -12,6 +13,7 @@ import TrashIcon from '@/components/icons/TrashIcon.vue'
 
 export {
   AddIcon,
+  ArrowRight,
   BedIcon,
   GlobeIcon,
   HikingIcon,

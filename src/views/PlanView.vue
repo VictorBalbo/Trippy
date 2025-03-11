@@ -1,17 +1,34 @@
 <script setup lang="ts">
-import { CardComponent, TripPlanComponent } from '@/components'
-import { useTripStore } from '@/stores'
 import dayjs from 'dayjs'
+import { watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMapStore, useTripStore } from '@/stores'
+import { CardComponent, TripPlanComponent } from '@/components'
 
-const trip = useTripStore()
+const tripStore = useTripStore()
+const { name, startDate, endDate, destinations, activities, housing } =
+  storeToRefs(tripStore)
+const mapStore = useMapStore()
+const { mapCenter } = storeToRefs(mapStore)
+
+watch(name, () => {
+  console.log('destinations')
+  if (destinations.value && destinations.value.length > 1) {
+    mapCenter.value = destinations.value.map(d => d.place)
+  } else {
+    mapCenter.value = activities.value
+      .map(a => a.place)
+      .concat(housing.value.map(a => a.place))
+  }
+})
 </script>
 <template>
   <div class="plan-view">
     <header class="header">
-      <h2>{{ trip.name }}</h2>
+      <h2>{{ name }}</h2>
       <small>
-        {{ dayjs(trip.startDate).utc().format('DD MMM') }} -
-        {{ dayjs(trip.endDate).utc().format('DD MMM') }}
+        {{ dayjs(startDate).utc().format('DD MMM') }} -
+        {{ dayjs(endDate).utc().format('DD MMM') }}
       </small>
     </header>
     <main>

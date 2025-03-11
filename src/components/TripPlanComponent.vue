@@ -84,13 +84,18 @@ const onDestinationReorder = () => {
           <article class="item badge">
             <BadgeComponent :value="index + 1" />
           </article>
-          <article class="item destination">
-            <b class="elipsis">{{ element.place.name }}</b>
-            <small>
-              {{ dayjs(element.startDate).utc().format('ddd DD/MM') }} -
-              {{ dayjs(element.endDate).utc().format('ddd DD/MM') }}
-            </small>
-          </article>
+          <RouterLink
+            :to="{ name: 'Destination', params: { id: element.id } }"
+            class="link"
+          >
+            <article class="item destination">
+              <b class="elipsis">{{ element.place.name }}</b>
+              <small>
+                {{ dayjs(element.startDate).utc().format('ddd DD/MM') }} -
+                {{ dayjs(element.endDate).utc().format('ddd DD/MM') }}
+              </small>
+            </article>
+          </RouterLink>
           <article class="item nights">
             <InputNumber
               title="Nights"

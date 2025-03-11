@@ -1,3 +1,4 @@
 import { useTripStore } from './TripStore'
+import { useMapStore } from './MapStore'
 
-export { useTripStore }
+export { useMapStore, useTripStore }
