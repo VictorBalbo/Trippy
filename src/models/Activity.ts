@@ -1,4 +1,4 @@
-import type { Place } from '.'
+import type { Place, Price } from '.'
 
 export interface Activity {
   id: string
@@ -7,7 +7,5 @@ export interface Activity {
   dateTime?: Date
   website?: string
   notes?: string
-  price?: number
-  currency?: string
-  booked?: boolean
+  price: Price
 }

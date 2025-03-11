@@ -134,7 +134,8 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
           !activities?.find(a => a.place.id === currentPlace) &&
           !transportations?.find(
             t =>
-              t.destination.id === currentPlace || t.origin.id === currentPlace,
+              t.destinationTerminal.id === currentPlace ||
+              t.originTerminal.id === currentPlace,
           )
         "
         :place="mapCenter"
@@ -146,7 +147,7 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
       <section v-if="showTransportations">
         <article
           v-for="transport in transportations"
-          :key="transport.origin.id + transport.destination.id"
+          :key="transport.originTerminal.id + transport.destinationTerminal.id"
         >
           <Polyline
             :options="{
@@ -155,13 +156,13 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
             }"
           />
           <MapMarkerComponent
-            :place="transport.origin"
+            :place="transport.originTerminal"
             :marker-type="transport.type"
             :z-index="0"
             @click="id => openCustomInfoWindow(id)"
           />
           <MapMarkerComponent
-            :place="transport.destination"
+            :place="transport.destinationTerminal"
             :marker-type="transport.type"
             :z-index="0"
             @click="id => openCustomInfoWindow(id)"

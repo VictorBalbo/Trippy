@@ -2,6 +2,7 @@
 import { computed, ref, watchEffect } from 'vue'
 import { useTripStore } from '@/stores'
 import type { Place } from '@/models'
+import { sanitizeUrl } from '@/utils/utils'
 import { MapsService } from '@/services'
 import ScrollPanel from 'primevue/scrollpanel'
 import {
@@ -48,8 +49,6 @@ watchEffect(async () => {
     centralizeMap(place.value)
   }
 })
-
-const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
 </script>
 <template>
   <section class="info-window-container">
@@ -123,8 +122,8 @@ const sanitizeUrl = (url: string) => new URL(url).hostname.replace('www.', '')
             </CardComponent>
             <CardComponent v-if="isTripActivity" class="card-info">
               <InputMoney
-                v-model:price="isTripActivity.price"
-                v-model:currency="isTripActivity.currency"
+                v-model:price="isTripActivity.price.value"
+                v-model:currency="isTripActivity.price.currency"
                 @change="() => saveActivityDate()"
               />
             </CardComponent>

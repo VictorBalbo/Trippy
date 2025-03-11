@@ -1,17 +1,18 @@
-import type { Coordinates } from './Coordinates'
-import type { Place } from './Place'
+import type { Coordinates, Place, Price } from '.'
 
 export interface Transportation {
   id: string
   originId: string
-  origin: Place
+  originTerminalId: string
+  originTerminal: Place
   destinationId: string
-  destination: Place
+  destinationTerminalId: string
+  destinationTerminal: Place
   path: Coordinates[]
   type: TransportTypes
   startDate?: Date
   endDate?: Date
-  price?: number
+  price: Price
   company?: string
   number?: string
   reservation?: string
