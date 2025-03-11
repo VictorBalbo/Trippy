@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { MapComponent } from '@/components'
+import { MapComponent, ScrollPanel } from '@/components'
 </script>
 
 <template>
   <div class="app">
     <main class="main">
-      <RouterView />
+      <ScrollPanel class="scroll-panel">
+        <RouterView />
+      </ScrollPanel>
     </main>
     <aside class="aside">
       <MapComponent class="map-component" />
@@ -25,6 +27,9 @@ import { MapComponent } from '@/components'
 .main {
   width: 100%;
   max-width: 45rem;
+  .scroll-panel {
+    height: 100%;
+  }
 }
 .aside {
   height: 100%;

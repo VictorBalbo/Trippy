@@ -3,7 +3,7 @@ import { ref, watch, useTemplateRef } from 'vue'
 import { GoogleMap, Polyline } from 'vue3-google-map'
 import { storeToRefs } from 'pinia'
 import { googleKey, googleMapId } from '@/constants'
-import { useTripStore } from '@/stores'
+import { useMapStore, useTripStore } from '@/stores'
 import type { Place } from '@/models'
 import {
   MapInfoWindow,
@@ -12,71 +12,74 @@ import {
 } from '@/components'
 
 const {
-  showCities: showDestinations = true,
+  showDestinations = true,
   showActivities = true,
   showTransportations = true,
   showHousing = true,
 } = defineProps<{
-  showCities?: boolean
+  showDestinations?: boolean
   showActivities?: boolean
   showTransportations?: boolean
   showHousing?: boolean
 }>()
 
 const tripStore = useTripStore()
-const { id, activities, destinations, housing, transportations } =
+const { activities, destinations, housing, transportations } =
   storeToRefs(tripStore)
+const mapStore = useMapStore()
+const { mapCenter } = storeToRefs(mapStore)
 
-const mapCenter = ref<Place>()
-const currentPlace = ref<string>()
+const currentPlace = ref<Place>()
+const currentPlaceId = ref<string>()
 
 const mapRef = useTemplateRef<typeof GoogleMap>('mapRef')
 
 const openCustomInfoWindow = async (placeId?: string) => {
   console.log('Open', placeId)
-  if (currentPlace.value !== placeId) {
-    mapCenter.value = undefined
-    currentPlace.value = placeId
+  if (currentPlaceId.value !== placeId) {
+    currentPlace.value = undefined
+    currentPlaceId.value = placeId
   }
 }
 const closeCustomInfoWindow = async () => {
-  mapCenter.value = undefined
   currentPlace.value = undefined
+  currentPlaceId.value = undefined
 }
 const centralizeOnLocation = async (location: Place) => {
-  mapCenter.value = location
-  const minZoom = 12
-  if (mapRef.value?.map.zoom && mapRef.value?.map.zoom < minZoom) {
-    mapRef.value.map.zoom = 13
-  }
-  mapRef.value?.map.panTo(location.coordinates)
+  currentPlace.value = location
+  mapCenter.value = [location]
 }
-const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
-  if (!ready || !id.value) {
-    return
-  }
-
-  mapRef.value?.map.addListener('click', (e: any) => {
-    if (e.placeId) {
-      openCustomInfoWindow(e.placeId)
-      e.stop()
+const mapUnwatch = watch(
+  () => mapRef.value?.ready,
+  () => {
+    if (!mapRef.value?.ready) {
+      return
     }
-  })
 
+    mapRef.value?.map.addListener('click', (e: any) => {
+      if (e.placeId) {
+        openCustomInfoWindow(e.placeId)
+        e.stop()
+      }
+    })
+    mapUnwatch()
+  },
+)
+watch(mapCenter, () => {
   // Set map boundries to fit all markers
   const latLngBounds = mapRef.value?.api.LatLngBounds
   const bounds = new latLngBounds()
 
-  if (destinations.value && destinations.value.length > 1) {
-    destinations.value.forEach(d => bounds.extend(d.place.coordinates))
-  } else {
-    activities.value?.forEach(a => bounds.extend(a.place.coordinates))
-    housing.value?.forEach(a => bounds.extend(a.place.coordinates))
+  if (mapCenter.value.length > 1) {
+    mapCenter.value.forEach(d => bounds.extend(d.coordinates))
+    mapRef.value?.map.fitBounds(bounds, 50)
+  } else if (mapCenter.value.length === 1) {
+    const minZoom = 12
+    if (mapRef.value?.map.zoom && mapRef.value?.map.zoom <= minZoom) {
+      mapRef.value.map.zoom = minZoom
+    }
+    mapRef.value?.map.panTo(mapCenter.value[0].coordinates)
   }
-
-  mapRef.value?.map.fitBounds(bounds)
-
-  mapUnwatch()
 })
 </script>
 <template>
@@ -91,6 +94,7 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
       :map-type-control="false"
       :fullscreen-control="false"
       :scale-control="false"
+      :zoom="3"
     >
       <!-- Destinations -->
       <article v-if="showDestinations">
@@ -130,15 +134,15 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
       <!-- New Activity -->
       <MapMarkerComponent
         v-if="
-          mapCenter &&
-          !activities?.find(a => a.place.id === currentPlace) &&
+          currentPlace &&
+          !activities?.find(a => a.place.id === currentPlaceId) &&
           !transportations?.find(
             t =>
-              t.destinationTerminal.id === currentPlace ||
-              t.originTerminal.id === currentPlace,
+              t.destinationTerminal.id === currentPlaceId ||
+              t.originTerminal.id === currentPlaceId,
           )
         "
-        :place="mapCenter"
+        :place="currentPlace"
         :z-index="0"
         marker-type="New"
       />
@@ -179,8 +183,8 @@ const mapUnwatch = watch([() => mapRef.value?.ready, () => id.value], ready => {
 
     <Transition>
       <MapInfoWindow
-        v-if="currentPlace"
-        :placeId="currentPlace"
+        v-if="currentPlaceId"
+        :placeId="currentPlaceId"
         @close="closeCustomInfoWindow"
         @location-loaded="centralizeOnLocation"
       />

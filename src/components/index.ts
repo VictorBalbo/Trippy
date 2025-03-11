@@ -10,6 +10,7 @@ import ProgressSpinner from 'primevue/progressspinner'
 import Inplace from 'primevue/inplace'
 import FloatLabel from 'primevue/floatlabel'
 import ToggleSwitch from 'primevue/toggleswitch'
+import ScrollPanel from 'primevue/scrollpanel'
 
 import DatePicker from './DatePicker.vue'
 import CardComponent from './CardComponent.vue'
@@ -34,6 +35,7 @@ export {
   Inplace,
   ProgressSpinner,
   ToggleSwitch,
+  ScrollPanel,
 }
 
 export {
