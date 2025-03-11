@@ -9,3 +9,19 @@ export const debounce = <T extends (...args: any[]) => void>(
     timeoutId = setTimeout(() => func(...args), delay)
   }
 }
+
+export const sanitizeUrl = (url: string) =>
+  new URL(url).hostname.replace('www.', '')
+
+export const getCurrencySymbol = (currencyCode: string) => {
+  switch (currencyCode) {
+    case 'EUR':
+      return '€'
+    case 'USD':
+      return 'U$'
+    case 'BRL':
+      return 'R$'
+    default:
+      return currencyCode
+  }
+}
