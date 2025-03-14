@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { ref, watchEffect } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
@@ -14,7 +13,7 @@ import { useMapStore, useTripStore } from '@/stores'
 import { CardComponent } from '@/components'
 import { ArrowRight } from '@/components/icons'
 import { MapsService } from '@/services'
-import { getCurrencySymbol, sanitizeUrl } from '@/utils/utils'
+import { getCurrencySymbol, isSameDay, sanitizeUrl, utcDate } from '@/utils'
 
 const tripStore = useTripStore()
 const { destinations, transportations } = storeToRefs(tripStore)
@@ -30,7 +29,7 @@ const activities = ref<Activity[]>()
 const arrival = ref<Transportation>()
 const departure = ref<Transportation>()
 
-watchEffect(() => {
+watchEffect(async () => {
   destination.value = destinations.value.find(d => d.id === destinationId)
   if (!destination.value) {
     return
@@ -40,33 +39,29 @@ watchEffect(() => {
   arrival.value = transportations.value.find(
     t =>
       destination.value?.placeId === t.destinationId &&
-      dayjs(destination.value?.startDate)
-        .utc()
-        .isSame(dayjs(t.endDate).utc(), 'day'),
+      isSameDay(destination.value.startDate, t.endDate),
   )
   departure.value = transportations.value.find(
     t =>
       destination.value?.placeId === t.originId &&
-      dayjs(destination.value?.endDate)
-        .utc()
-        .isSame(dayjs(t.startDate).utc(), 'day'),
+      isSameDay(destination.value.endDate, t.startDate),
   )
-  let places: Place[] = [destination.value.place]
-  if (activities.value?.length) {
-    places = [...places, ...activities.value.map(a => a.place)]
+  if (!mapCenter.value || !mapCenter.value.length) {
+    let places: Place[] = [destination.value.place]
+    if (activities.value?.length) {
+      places = [...places, ...activities.value.map(a => a.place)]
+    }
+    if (housing.value) {
+      places = [...places, housing.value.place]
+    }
+    if (arrival.value) {
+      places = [...places, arrival.value.destinationTerminal]
+    }
+    if (departure.value) {
+      places = [...places, departure.value.originTerminal]
+    }
+    mapCenter.value = places
   }
-  if (housing.value) {
-    places = [...places, housing.value.place]
-  }
-  if (arrival.value) {
-    console.log(arrival.value)
-    places = [...places, arrival.value.destinationTerminal]
-  }
-  if (departure.value) {
-    console.log(departure.value)
-    places = [...places, departure.value.originTerminal]
-  }
-  mapCenter.value = places
 })
 </script>
 
@@ -80,10 +75,18 @@ watchEffect(() => {
       class="cover-image"
     />
     <section class="destination-header">
-      <article>
-        {{ dayjs(destination?.endDate).diff(destination?.startDate, 'days') }}
+      <article v-if="destination?.startDate && destination?.endDate">
         {{
-          dayjs(destination?.endDate).diff(destination?.startDate, 'days') > 1
+          utcDate(destination?.endDate).diff(
+            utcDate(destination?.startDate),
+            'days',
+          )
+        }}
+        {{
+          utcDate(destination?.endDate).diff(
+            utcDate(destination?.startDate),
+            'days',
+          ) > 1
             ? 'nights'
             : 'night'
         }}
@@ -91,9 +94,9 @@ watchEffect(() => {
       <h1>
         {{ destination?.place.name }}
       </h1>
-      <article>
-        {{ dayjs(destination?.startDate).utc().format('DD MMM') }} -
-        {{ dayjs(destination?.endDate).utc().format('DD MMM') }}
+      <article v-if="destination?.startDate && destination?.endDate">
+        {{ utcDate(destination?.startDate).format('DD MMM') }} -
+        {{ utcDate(destination?.endDate).format('DD MMM') }}
       </article>
     </section>
   </header>
@@ -101,12 +104,10 @@ watchEffect(() => {
     <section class="info">
       <h4>Sleep in {{ destination.place.name }}</h4>
       <p>{{ destination.housing.name }}</p>
-      <p class="dates">
-        {{ dayjs(destination.housing.checkin).utc().format('ddd DD/MM HH:mm') }}
+      <p v-if="housing?.checkin && housing?.checkout" class="dates">
+        {{ utcDate(housing.checkin).format('ddd DD/MM HH:mm') }}
         <ArrowRight class="icon" />
-        {{
-          dayjs(destination.housing.checkout).utc().format('ddd DD/MM HH:mm')
-        }}
+        {{ utcDate(housing.checkout).format('ddd DD/MM HH:mm') }}
       </p>
       <p v-if="destination.housing.price.value">
         <small>
@@ -137,8 +138,8 @@ watchEffect(() => {
       <h4>Arrival</h4>
       <small>{{ arrival.type }}</small>
       <p>{{ arrival.company }} {{ arrival.number }}</p>
-      <p>
-        {{ dayjs(arrival.endDate).utc().format('ddd, DD/MM - HH:mm') }}
+      <p v-if="arrival.endDate">
+        {{ utcDate(arrival.endDate).format('ddd, DD/MM - HH:mm') }}
       </p>
       <small>
         <a :href="arrival.destinationTerminal.mapsUrl">
@@ -153,8 +154,8 @@ watchEffect(() => {
         {{ departure.company }}
         {{ departure.number }}
       </p>
-      <p>
-        {{ dayjs(departure.startDate).utc().format('ddd, DD/MM - HH:mm') }}
+      <p v-if="departure.startDate">
+        {{ utcDate(departure.startDate).format('ddd, DD/MM - HH:mm') }}
       </p>
       <small>
         <a :href="departure.destinationTerminal.mapsUrl">
@@ -164,35 +165,33 @@ watchEffect(() => {
     </section>
   </CardComponent>
 
-  <CardComponent
-    v-for="activity in destination?.activities"
-    :key="activity.id"
-    class="card activity"
-  >
-    <section class="info">
-      <h4>
-        {{ activity.place.name }}
-      </h4>
-      <small severity="danger"> {{ activity.place.categories?.[0] }}</small>
-      <p v-if="activity.dateTime">
-        {{ dayjs(activity.dateTime).utc().format('ddd DD/MM - HH:mm') }}
-      </p>
-      <p v-if="activity.price?.value">
-        {{ getCurrencySymbol(activity.price.currency ?? '') }}
-        {{ activity.price.value.toFixed(2) }}
-      </p>
-      <small v-if="activity.website ?? activity.place.website" class="bottom">
-        <a :href="activity.website ?? activity.place.website">
-          {{ sanitizeUrl(activity.website ?? activity.place.website!) }}
-        </a>
-      </small>
-    </section>
-    <img
-      v-if="activity?.place?.images?.length"
-      :src="MapsService.getPhotoForPlace(activity.place.images)"
-      class="activity-cover"
-    />
-  </CardComponent>
+  <section v-for="activity in activities" :key="activity.id">
+    <CardComponent class="card activity">
+      <article class="info">
+        <h4>
+          {{ activity.place.name }}
+        </h4>
+        <small severity="danger"> {{ activity.place.categories?.[0] }}</small>
+        <p v-if="activity.dateTime">
+          {{ utcDate(activity.dateTime).format('ddd DD/MM - HH:mm') }}
+        </p>
+        <p v-if="activity.price?.value">
+          {{ getCurrencySymbol(activity.price.currency ?? '') }}
+          {{ activity.price.value.toFixed(2) }}
+        </p>
+        <small v-if="activity.website ?? activity.place.website" class="bottom">
+          <a :href="activity.website ?? activity.place.website">
+            {{ sanitizeUrl(activity.website ?? activity.place.website!) }}
+          </a>
+        </small>
+      </article>
+      <img
+        v-if="activity?.place?.images?.length"
+        :src="MapsService.getPhotoForPlace(activity.place.images)"
+        class="activity-cover"
+      />
+    </CardComponent>
+  </section>
 </template>
 
 <style scoped>
@@ -269,6 +268,12 @@ watchEffect(() => {
   .departure {
     width: 50%;
   }
+}
+
+.connector {
+  margin-left: var(--small-spacing);
+  padding-left: var(--small-spacing);
+  border-left: 2px red solid;
 }
 
 .activity {

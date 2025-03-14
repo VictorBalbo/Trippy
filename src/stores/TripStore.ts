@@ -9,7 +9,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { distanceBetweenPoints } from '@/models/Coordinates'
 import { TripService } from '@/services'
-import { debounce } from '@/utils/utils'
+import { debounce } from '@/utils'
 
 const destinationCategory = 'locality'
 

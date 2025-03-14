@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 export const debounce = <T extends (...args: any[]) => void>(
   func: T,
   delay: number = 5000,
@@ -25,3 +27,7 @@ export const getCurrencySymbol = (currencyCode: string) => {
       return currencyCode
   }
 }
+
+export const utcDate = (date: Date) => dayjs(date).utc()
+export const isSameDay = (date1?: Date, date2?: Date) =>
+  date1 && date2 && utcDate(date1).isSame(utcDate(date2), 'day')

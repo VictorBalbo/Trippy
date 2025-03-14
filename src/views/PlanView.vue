@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMapStore, useTripStore } from '@/stores'
 import { CardComponent, TripPlanComponent } from '@/components'
+import { utcDate } from '@/utils'
 
 const tripStore = useTripStore()
 const { name, startDate, endDate, destinations, activities, housing } =
@@ -27,8 +27,8 @@ watch(name, () => {
     <header class="header">
       <h2>{{ name }}</h2>
       <small>
-        {{ dayjs(startDate).utc().format('DD MMM') }} -
-        {{ dayjs(endDate).utc().format('DD MMM') }}
+        {{ utcDate(startDate).format('DD MMM') }} -
+        {{ utcDate(endDate).format('DD MMM') }}
       </small>
     </header>
     <main>

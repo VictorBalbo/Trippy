@@ -2,7 +2,7 @@
 import { computed, ref, watchEffect } from 'vue'
 import { useTripStore } from '@/stores'
 import type { Place } from '@/models'
-import { sanitizeUrl } from '@/utils/utils'
+import { sanitizeUrl } from '@/utils'
 import { MapsService } from '@/services'
 import ScrollPanel from 'primevue/scrollpanel'
 import {

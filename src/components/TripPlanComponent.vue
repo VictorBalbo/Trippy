@@ -7,6 +7,7 @@ import type { Destination } from '@/models'
 import { BadgeComponent } from '@/components'
 import { BedIcon, HikingIcon, MoonIcon } from '@/components/icons'
 import { storeToRefs } from 'pinia'
+import { utcDate } from '@/utils'
 
 const tripStore = useTripStore()
 const { destinations } = storeToRefs(tripStore)
@@ -91,8 +92,8 @@ const onDestinationReorder = () => {
             <article class="item destination">
               <b class="elipsis">{{ element.place.name }}</b>
               <small>
-                {{ dayjs(element.startDate).utc().format('ddd DD/MM') }} -
-                {{ dayjs(element.endDate).utc().format('ddd DD/MM') }}
+                {{ utcDate(element.startDate).format('ddd DD/MM') }} -
+                {{ utcDate(element.endDate).format('ddd DD/MM') }}
               </small>
             </article>
           </RouterLink>

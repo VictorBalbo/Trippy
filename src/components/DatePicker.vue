@@ -1,10 +1,26 @@
 <script setup lang="ts">
-import { useId, useTemplateRef, type Ref } from 'vue'
+import { computed, useId, useTemplateRef, type Ref } from 'vue'
 import DatePicker from 'primevue/datepicker'
 import { ButtonComponent, FloatLabel } from '.'
 
+import dayjs from 'dayjs'
+
 const model = defineModel<Date | null>()
 let initialValue = model.value
+const utcModel = computed({
+  get: () =>
+    model.value
+      ? dayjs(model.value)
+          .subtract(dayjs(model.value).utcOffset(), 'minute')
+          .toDate()
+      : null,
+  set: (newValue?: Date) => {
+    model.value = dayjs(newValue)
+      .add(dayjs(newValue).utcOffset(), 'minute')
+      .toDate()
+  },
+})
+
 defineProps<{
   label?: string
   minDate?: Date
@@ -15,12 +31,12 @@ const id = useId()
 const datePicker = useTemplateRef('datePicker') as Ref
 
 const onClear = () => {
-  model.value = null
+  utcModel.value = undefined
 }
 const onOk = () => {
-  if (model.value !== initialValue) {
+  if (utcModel.value !== initialValue) {
     emit('change')
-    initialValue = model.value
+    initialValue = utcModel.value
   }
   if (datePicker.value) {
     datePicker.value.overlayVisible = false
@@ -31,7 +47,7 @@ const onOk = () => {
   <FloatLabel variant="in">
     <DatePicker
       ref="datePicker"
-      v-model="model"
+      v-model="utcModel"
       dateFormat="DD, dd/mm/yy -"
       :minDate="minDate"
       :maxDate="maxDate"
