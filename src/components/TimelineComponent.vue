@@ -42,7 +42,7 @@ watch(
     const walkingDistances: DistanceBetweenPlaces[] = []
 
     activitiesByDate.value['No Date'] = activities.filter(a => !a.dateTime)
-    for (let i = 0; i < daysDiff; i++) {
+    for (let i = 0; i <= daysDiff; i++) {
       const day = utcDate(startDate).add(i, 'day')
       const dayStr = day.format('ddd, DD/MM')
       const dayActivities = activities
