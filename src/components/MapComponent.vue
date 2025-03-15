@@ -27,7 +27,7 @@ const tripStore = useTripStore()
 const { activities, destinations, housing, transportations } =
   storeToRefs(tripStore)
 const mapStore = useMapStore()
-const { mapCenter } = storeToRefs(mapStore)
+const { distances, mapCenter } = storeToRefs(mapStore)
 
 const currentPlace = ref<Place>()
 const currentPlaceId = ref<string>()
@@ -173,6 +173,15 @@ watch(mapCenter, () => {
           />
         </article>
       </section>
+      <!-- Distances -->
+      <Polyline
+        v-for="(distance, index) in distances"
+        :key="index"
+        :options="{
+          path: distance.walking.decodedPolyline,
+          geodesic: true,
+        }"
+      />
     </GoogleMap>
 
     <MapSearchComponent

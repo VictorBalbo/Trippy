@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import type {
   Activity,
   Destination,
+  DistanceBetweenPlaces,
   Housing,
   Place,
   Transportation,
 } from '@/models'
 import { useMapStore, useTripStore } from '@/stores'
-import { CardComponent } from '@/components'
+import { CardComponent, Timeline } from '@/components'
 import { ArrowRight } from '@/components/icons'
 import { MapsService } from '@/services'
-import { getCurrencySymbol, isSameDay, sanitizeUrl, utcDate } from '@/utils'
+import {
+  getCurrencySymbol,
+  getDisplayDuration,
+  getMapsDirectionLink,
+  isSameDay,
+  sanitizeUrl,
+  utcDate,
+} from '@/utils'
 
 const tripStore = useTripStore()
 const { destinations, transportations } = storeToRefs(tripStore)
@@ -27,42 +35,63 @@ const destination = ref<Destination>()
 const housing = ref<Housing>()
 const activities = ref<Activity[]>()
 const arrival = ref<Transportation>()
+const arrivalDistanceToHome = ref<DistanceBetweenPlaces>()
 const departure = ref<Transportation>()
+const departureTimeFromHome = ref<DistanceBetweenPlaces>()
 
-watchEffect(async () => {
-  destination.value = destinations.value.find(d => d.id === destinationId)
-  if (!destination.value) {
-    return
-  }
-  housing.value = destination.value?.housing
-  activities.value = destination.value?.activities
-  arrival.value = transportations.value.find(
-    t =>
-      destination.value?.placeId === t.destinationId &&
-      isSameDay(destination.value.startDate, t.endDate),
-  )
-  departure.value = transportations.value.find(
-    t =>
-      destination.value?.placeId === t.originId &&
-      isSameDay(destination.value.endDate, t.startDate),
-  )
-  if (!mapCenter.value || !mapCenter.value.length) {
-    let places: Place[] = [destination.value.place]
-    if (activities.value?.length) {
-      places = [...places, ...activities.value.map(a => a.place)]
+watch(
+  [destinations, transportations],
+  async () => {
+    destination.value = destinations.value.find(d => d.id === destinationId)
+    if (!destination.value) {
+      return
     }
-    if (housing.value) {
-      places = [...places, housing.value.place]
+    housing.value = destination.value.housing
+    activities.value = destination.value.activities
+
+    arrival.value = transportations.value.find(
+      t =>
+        destination.value?.placeId === t.destinationId &&
+        isSameDay(destination.value.startDate, t.endDate),
+    )
+    if (arrival.value && housing.value) {
+      arrivalDistanceToHome.value = await MapsService.getDistaceBetweenPlaces(
+        arrival.value.destinationTerminalId,
+        housing.value.place.id,
+      )
     }
-    if (arrival.value) {
-      places = [...places, arrival.value.destinationTerminal]
+
+    departure.value = transportations.value.find(
+      t =>
+        destination.value?.placeId === t.originId &&
+        isSameDay(destination.value.endDate, t.startDate),
+    )
+    if (departure.value && housing.value) {
+      departureTimeFromHome.value = await MapsService.getDistaceBetweenPlaces(
+        housing.value.place.id,
+        departure.value.originTerminalId,
+      )
     }
-    if (departure.value) {
-      places = [...places, departure.value.originTerminal]
+
+    if (!mapCenter.value || !mapCenter.value.length) {
+      let places: Place[] = [destination.value.place]
+      if (activities.value?.length) {
+        places = [...places, ...activities.value.map(a => a.place)]
+      }
+      if (housing.value) {
+        places = [...places, housing.value.place]
+      }
+      if (arrival.value) {
+        places = [...places, arrival.value.destinationTerminal]
+      }
+      if (departure.value) {
+        places = [...places, departure.value.originTerminal]
+      }
+      mapCenter.value = places
     }
-    mapCenter.value = places
-  }
-})
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -141,6 +170,16 @@ watchEffect(async () => {
       <p v-if="arrival.endDate">
         {{ utcDate(arrival.endDate).format('ddd, DD/MM - HH:mm') }}
       </p>
+      <p v-if="arrivalDistanceToHome">
+        Time to Home:
+        <a
+          :href="
+            getMapsDirectionLink(arrival.destinationTerminal, housing!.place)
+          "
+        >
+          {{ getDisplayDuration(arrivalDistanceToHome.transit.duration) }}
+        </a>
+      </p>
       <small>
         <a :href="arrival.destinationTerminal.mapsUrl">
           {{ arrival.destinationTerminal.name }}
@@ -157,6 +196,14 @@ watchEffect(async () => {
       <p v-if="departure.startDate">
         {{ utcDate(departure.startDate).format('ddd, DD/MM - HH:mm') }}
       </p>
+      <p v-if="departureTimeFromHome">
+        Time from Home:
+        <a
+          :href="getMapsDirectionLink(housing!.place, departure.originTerminal)"
+        >
+          {{ getDisplayDuration(departureTimeFromHome.transit.duration) }}
+        </a>
+      </p>
       <small>
         <a :href="departure.destinationTerminal.mapsUrl">
           {{ departure.destinationTerminal.name }}
@@ -164,34 +211,12 @@ watchEffect(async () => {
       </small>
     </section>
   </CardComponent>
-
-  <section v-for="activity in activities" :key="activity.id">
-    <CardComponent class="card activity">
-      <article class="info">
-        <h4>
-          {{ activity.place.name }}
-        </h4>
-        <small severity="danger"> {{ activity.place.categories?.[0] }}</small>
-        <p v-if="activity.dateTime">
-          {{ utcDate(activity.dateTime).format('ddd DD/MM - HH:mm') }}
-        </p>
-        <p v-if="activity.price?.value">
-          {{ getCurrencySymbol(activity.price.currency ?? '') }}
-          {{ activity.price.value.toFixed(2) }}
-        </p>
-        <small v-if="activity.website ?? activity.place.website" class="bottom">
-          <a :href="activity.website ?? activity.place.website">
-            {{ sanitizeUrl(activity.website ?? activity.place.website!) }}
-          </a>
-        </small>
-      </article>
-      <img
-        v-if="activity?.place?.images?.length"
-        :src="MapsService.getPhotoForPlace(activity.place.images)"
-        class="activity-cover"
-      />
-    </CardComponent>
-  </section>
+  <Timeline
+    v-if="destination?.startDate && destination?.endDate"
+    :startDate="destination?.startDate"
+    :endDate="destination?.endDate"
+    :activities="activities!"
+  />
 </template>
 
 <style scoped>

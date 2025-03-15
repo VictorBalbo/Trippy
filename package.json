@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@googlemaps/polyline-codec": "^1.0.28",
     "@primevue/themes": "^4.1.1",
     "dayjs": "^1.11.13",
     "pinia": "^2.2.4",

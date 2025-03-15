@@ -3,6 +3,8 @@ import { AdvancedMarker } from 'vue3-google-map'
 import { BedIcon, PlaneIcon, TrainIcon } from '@/components/icons'
 import type { Place } from '@/models'
 import { ref, useTemplateRef } from 'vue'
+import { useMapStore } from '@/stores'
+import { storeToRefs } from 'pinia'
 
 const {
   place,
@@ -18,6 +20,9 @@ const {
 const emit = defineEmits<{
   click: [id: string]
 }>()
+
+const mapStore = useMapStore()
+const { markerFocus } = storeToRefs(mapStore)
 
 const bedIcon = useTemplateRef('BedIconRef')
 const planeIcon = useTemplateRef('PlaneIconRef')
@@ -82,7 +87,7 @@ getMarkerColor()
       zIndex: zIndex,
     }"
     :pinOptions="{
-      // scale: place.id === currentPlace ? 1.25 : 1,
+      scale: place.id === markerFocus?.id ? 1.25 : 1,
       glyphColor: glyphColor,
       glyph: getIconForTransportation(),
       background: background,

@@ -10,6 +10,7 @@ import StarIcon from '@/components/icons/StarIcon.vue'
 import TicketIcon from '@/components/icons/TicketIcon.vue'
 import TrainIcon from '@/components/icons/TrainIcon.vue'
 import TrashIcon from '@/components/icons/TrashIcon.vue'
+import WalkingIcon from '@/components/icons/WalkingIcon.vue'
 
 export {
   AddIcon,
@@ -24,4 +25,5 @@ export {
   TicketIcon,
   TrainIcon,
   TrashIcon,
+  WalkingIcon,
 }

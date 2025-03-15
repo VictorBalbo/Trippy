@@ -21,6 +21,7 @@ import MapSearchComponent from './MapSearchComponent.vue'
 import TripPlanComponent from './TripPlanComponent.vue'
 import InputNumber from './InputNumber.vue'
 import InputMoney from './InputMoney.vue'
+import Timeline from './TimelineComponent.vue'
 
 export {
   Accordion,
@@ -47,5 +48,6 @@ export {
   MapInfoWindow,
   MapMarkerComponent,
   MapSearchComponent,
+  Timeline,
   TripPlanComponent,
 }
