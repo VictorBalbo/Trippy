@@ -54,7 +54,7 @@ const onChange = () => {
 
 <style scoped>
 .currency {
-  min-width: 6rem;
+  min-width: 7.5rem;
 }
 :root {
   ::v-deep() {

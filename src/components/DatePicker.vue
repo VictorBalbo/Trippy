@@ -5,19 +5,12 @@ import { ButtonComponent, FloatLabel } from '.'
 
 import dayjs from 'dayjs'
 
-const model = defineModel<Date | null>()
+const model = defineModel<Date>()
 let initialValue = model.value
 const utcModel = computed({
-  get: () =>
-    model.value
-      ? dayjs(model.value)
-          .subtract(dayjs(model.value).utcOffset(), 'minute')
-          .toDate()
-      : null,
+  get: () => toUtc(model.value),
   set: (newValue?: Date) => {
-    model.value = dayjs(newValue)
-      .add(dayjs(newValue).utcOffset(), 'minute')
-      .toDate()
+    model.value = fromUtc(newValue)
   },
 })
 
@@ -42,6 +35,13 @@ const onOk = () => {
     datePicker.value.overlayVisible = false
   }
 }
+
+const toUtc = (date?: Date) =>
+  date
+    ? dayjs(date).subtract(dayjs(date).utcOffset(), 'minute').toDate()
+    : undefined
+const fromUtc = (date?: Date) =>
+  date ? dayjs(date).add(dayjs(date).utcOffset(), 'minute').toDate() : undefined
 </script>
 <template>
   <FloatLabel variant="in">
@@ -49,8 +49,8 @@ const onOk = () => {
       ref="datePicker"
       v-model="utcModel"
       dateFormat="DD, dd/mm/yy -"
-      :minDate="minDate"
-      :maxDate="maxDate"
+      :minDate="toUtc(minDate)"
+      :maxDate="toUtc(maxDate)"
       showTime
       fluid
       showIcon
