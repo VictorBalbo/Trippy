@@ -11,6 +11,7 @@ const currencies = ['BRL', 'EUR', 'CHF', 'USD']
 const price = defineModel<number>('price')
 let initialPrice = price.value
 const currency = defineModel<string>('currency')
+currency.value = currency.value ?? currencies[0]
 let initialCurrency: string | undefined = currency.value
 
 defineProps<{
@@ -32,8 +33,15 @@ const onChange = () => {
   <InputGroup>
     <InputGroupAddon class="currency">
       <FloatLabel variant="in">
-        <Select v-model="currency" :options="currencies" @change="onChange" />
-        <label :for="id">{{ currenctyLabel ?? 'Currency' }}</label>
+        <Select
+          v-model="currency"
+          :options="currencies"
+          :inputId="`${id}-currency`"
+          @change="onChange"
+        />
+        <label :for="`${id}-currency`">{{
+          currenctyLabel ?? 'Currency'
+        }}</label>
       </FloatLabel>
     </InputGroupAddon>
     <FloatLabel variant="in">
@@ -45,9 +53,10 @@ const onChange = () => {
         :currency="currency ?? currencies[0]"
         mode="currency"
         fluid
+        :inputId="`${id}-price`"
         @update:modelValue="onChange"
       />
-      <label :for="id">{{ priceLabel ?? 'Price' }}</label>
+      <label :for="`${id}-price`">{{ priceLabel ?? 'Price' }}</label>
     </FloatLabel>
   </InputGroup>
 </template>
