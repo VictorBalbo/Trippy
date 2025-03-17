@@ -16,9 +16,26 @@ export class TripService {
 
   static setTripDetails = async (trip: Trip) => {
     try {
+      const requestTrip = {
+        ...trip,
+        destinations: trip.destinations.map(d => ({
+          ...d,
+          place: undefined,
+          housing: { ...d.housing, place: undefined },
+          activities: d.activities?.map(a => ({
+            ...a,
+            place: undefined,
+          })),
+        })),
+        transportations: trip.transportations.map(t => ({
+          ...t,
+          originTerminal: undefined,
+          destinationTerminal: undefined,
+        })),
+      }
       const tripResponse = await fetch(`${BASE_URL}/trip`, {
         method: 'POST',
-        body: JSON.stringify(trip),
+        body: JSON.stringify(requestTrip),
         headers: {
           'Content-Type': 'application/json',
         },
