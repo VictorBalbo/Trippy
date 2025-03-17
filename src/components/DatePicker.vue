@@ -54,7 +54,7 @@ const fromUtc = (date?: Date) =>
       showTime
       fluid
       showIcon
-      :id="id"
+      :inputId="id"
       @hide="onOk"
     >
       <template #footer>

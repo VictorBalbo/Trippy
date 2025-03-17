@@ -27,26 +27,25 @@ const tripStore = useTripStore()
 const { activities, destinations, housing, transportations } =
   storeToRefs(tripStore)
 const mapStore = useMapStore()
-const { distances, mapCenter } = storeToRefs(mapStore)
+const { distances, selectedPlaceId, mapCenter } = storeToRefs(mapStore)
 
-const currentPlace = ref<Place>()
-const currentPlaceId = ref<string>()
+const newActivity = ref<Place>()
 
 const mapRef = useTemplateRef<typeof GoogleMap>('mapRef')
 
 const openCustomInfoWindow = async (placeId?: string) => {
   console.log('Open', placeId)
-  if (currentPlaceId.value !== placeId) {
-    currentPlace.value = undefined
-    currentPlaceId.value = placeId
+  if (selectedPlaceId.value !== placeId) {
+    newActivity.value = undefined
+    selectedPlaceId.value = placeId
   }
 }
 const closeCustomInfoWindow = async () => {
-  currentPlace.value = undefined
-  currentPlaceId.value = undefined
+  newActivity.value = undefined
+  selectedPlaceId.value = undefined
 }
 const centralizeOnLocation = async (location: Place) => {
-  currentPlace.value = location
+  newActivity.value = location
   mapCenter.value = [location]
 }
 const mapUnwatch = watch(
@@ -134,15 +133,15 @@ watch(mapCenter, () => {
       <!-- New Activity -->
       <MapMarkerComponent
         v-if="
-          currentPlace &&
-          !activities?.find(a => a.place.id === currentPlaceId) &&
+          newActivity &&
+          !activities?.find(a => a.place.id === selectedPlaceId) &&
           !transportations?.find(
             t =>
-              t.destinationTerminal.id === currentPlaceId ||
-              t.originTerminal.id === currentPlaceId,
+              t.destinationTerminal.id === selectedPlaceId ||
+              t.originTerminal.id === selectedPlaceId,
           )
         "
-        :place="currentPlace"
+        :place="newActivity"
         :z-index="0"
         marker-type="New"
       />
@@ -151,7 +150,7 @@ watch(mapCenter, () => {
       <section v-if="showTransportations">
         <article
           v-for="transport in transportations"
-          :key="transport.originTerminal.id + transport.destinationTerminal.id"
+          :key="transport.originTerminalId + transport.destinationTerminalId"
         >
           <Polyline
             :options="{
@@ -192,8 +191,8 @@ watch(mapCenter, () => {
 
     <Transition>
       <MapInfoWindow
-        v-if="currentPlaceId"
-        :placeId="currentPlaceId"
+        v-if="selectedPlaceId"
+        :placeId="selectedPlaceId"
         @close="closeCustomInfoWindow"
         @location-loaded="centralizeOnLocation"
       />

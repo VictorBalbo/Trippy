@@ -41,7 +41,10 @@ watch(
     const daysDiff = utcDate(endDate).diff(utcDate(startDate), 'day')
     const walkingDistances: DistanceBetweenPlaces[] = []
 
-    activitiesByDate.value['No Date'] = activities.filter(a => !a.dateTime)
+    const noDateActivities = activities.filter(a => !a.dateTime)
+    if (noDateActivities.length) {
+      activitiesByDate.value['No Date'] = noDateActivities
+    }
     for (let i = 0; i <= daysDiff; i++) {
       const day = utcDate(startDate).add(i, 'day')
       const dayStr = day.format('ddd, DD/MM')
@@ -96,66 +99,73 @@ watch(
       >Total walking distance:
       {{ getDisplayDistance(distanceByDate[day]) }}</small
     >
-    <section
-      v-for="(activity, index) in activities"
-      :key="activity.id"
-      @pointerenter="mapStore.markerFocus = activity.place"
-      @pointerleave="mapStore.markerFocus = undefined"
-    >
-      <CardComponent class="activity">
-        <article class="info">
-          <h4>
-            {{ activity.place.name }}
-          </h4>
-          <small severity="danger"> {{ activity.place.categories?.[0] }}</small>
-          <p v-if="activity.dateTime">
-            {{ utcDate(activity.dateTime).format('ddd DD/MM - HH:mm') }}
-          </p>
-          <p v-if="activity.price?.value">
-            {{ getCurrencySymbol(activity.price.currency ?? '') }}
-            {{ activity.price.value.toFixed(2) }}
-          </p>
-          <small
-            v-if="activity.website ?? activity.place.website"
-            class="bottom"
-          >
-            <a :href="activity.website ?? activity.place.website">
-              {{ sanitizeUrl(activity.website ?? activity.place.website!) }}
-            </a>
-          </small>
-        </article>
-        <img
-          v-if="activity?.place?.images?.length"
-          :src="MapsService.getPhotoForPlace(activity.place.images)"
-          class="activity-cover"
-        />
-      </CardComponent>
-      <a
-        v-if="getDistanceBetween(activities?.[index], activities?.[index + 1])"
-        :href="
-          getMapsDirectionLink(
-            activities?.[index]?.place,
-            activities?.[index + 1]?.place,
-          )
-        "
-        class="direction-link"
+    <TransitionGroup name="list">
+      <section
+        v-for="(activity, index) in activities"
+        :key="activity.id"
+        @pointerenter="mapStore.markerFocus = activity.place"
+        @pointerleave="mapStore.markerFocus = undefined"
+        @click="mapStore.selectedPlaceId = activity.place.id"
       >
-        <WalkingIcon class="icon" />
-        {{
-          getDisplayDistance(
+        <CardComponent class="activity">
+          <article class="info">
+            <h4>
+              {{ activity.place.name }}
+            </h4>
+            <small severity="danger">
+              {{ activity.place.categories?.[0] }}</small
+            >
+            <p v-if="activity.dateTime">
+              {{ utcDate(activity.dateTime).format('ddd DD/MM - HH:mm') }}
+            </p>
+            <p v-if="activity.price?.value != undefined">
+              {{ getCurrencySymbol(activity.price.currency ?? '') }}
+              {{ activity.price.value.toFixed(2) }}
+            </p>
+            <small
+              v-if="activity.website ?? activity.place.website"
+              class="bottom"
+            >
+              <a :href="activity.website ?? activity.place.website">
+                {{ sanitizeUrl(activity.website ?? activity.place.website!) }}
+              </a>
+            </small>
+          </article>
+          <img
+            v-if="activity?.place?.images?.length"
+            :src="MapsService.getPhotoForPlace(activity.place.images)"
+            class="activity-cover"
+          />
+        </CardComponent>
+        <a
+          v-if="
             getDistanceBetween(activities?.[index], activities?.[index + 1])
-              .walking.distance,
-          )
-        }}
-        ·
-        {{
-          getDisplayDuration(
-            getDistanceBetween(activities?.[index], activities?.[index + 1])
-              .walking.duration,
-          )
-        }}
-      </a>
-    </section>
+          "
+          :href="
+            getMapsDirectionLink(
+              activities?.[index]?.place,
+              activities?.[index + 1]?.place,
+            )
+          "
+          class="direction-link"
+        >
+          <WalkingIcon class="icon" />
+          {{
+            getDisplayDistance(
+              getDistanceBetween(activities?.[index], activities?.[index + 1])
+                .walking.distance,
+            )
+          }}
+          ·
+          {{
+            getDisplayDuration(
+              getDistanceBetween(activities?.[index], activities?.[index + 1])
+                .walking.duration,
+            )
+          }}
+        </a>
+      </section>
+    </TransitionGroup>
   </section>
 </template>
 
@@ -178,6 +188,7 @@ watch(
   display: flex;
   justify-content: space-between;
   margin: var(--small-spacing) 0;
+  cursor: pointer;
   .info {
     display: flex;
     flex-direction: column;
@@ -209,5 +220,23 @@ watch(
   .icon {
     margin-right: var(--small-spacing);
   }
+}
+
+.list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+  position: absolute;
 }
 </style>
