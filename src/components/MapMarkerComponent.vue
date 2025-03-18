@@ -2,7 +2,11 @@
 import { AdvancedMarker } from 'vue3-google-map'
 import { BedIcon, PlaneIcon, TrainIcon } from '@/components/icons'
 import type { Place } from '@/models'
-import { ref, useTemplateRef } from 'vue'
+import {
+  ref,
+  useTemplateRef,
+  type CreateComponentPublicInstanceWithMixins,
+} from 'vue'
 import { useMapStore } from '@/stores'
 import { storeToRefs } from 'pinia'
 
@@ -24,9 +28,12 @@ const emit = defineEmits<{
 const mapStore = useMapStore()
 const { markerFocus } = storeToRefs(mapStore)
 
-const bedIcon = useTemplateRef('BedIconRef')
-const planeIcon = useTemplateRef('PlaneIconRef')
-const trainIcon = useTemplateRef('TrainIconRef')
+const bedIcon =
+  useTemplateRef<CreateComponentPublicInstanceWithMixins>('BedIconRef')
+const planeIcon =
+  useTemplateRef<CreateComponentPublicInstanceWithMixins>('PlaneIconRef')
+const trainIcon =
+  useTemplateRef<CreateComponentPublicInstanceWithMixins>('TrainIconRef')
 
 const background = ref<string>()
 const borderColor = ref<string>()
