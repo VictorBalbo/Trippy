@@ -145,6 +145,7 @@ watch(
             getMapsDirectionLink(
               activities?.[index]?.place,
               activities?.[index + 1]?.place,
+              'walking',
             )
           "
           class="direction-link"
