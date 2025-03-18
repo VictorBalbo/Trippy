@@ -29,6 +29,8 @@ import { MapComponent, ScrollPanel } from '@/components'
   max-width: 45rem;
   .scroll-panel {
     height: 100%;
+    --p-scrollpanel-bar-background: var(--color-border);
+    --p-scrollpanel-bar-size: var(--small-spacing);
   }
 }
 .aside {
