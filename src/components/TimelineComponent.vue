@@ -194,9 +194,12 @@ watch(
     display: flex;
     flex-direction: column;
     padding: var(--large-spacing);
+    min-width: 20rem;
   }
   .activity-cover {
     width: 250px;
+    min-width: 3rem;
+    aspect-ratio: 2;
     object-fit: cover;
     --mask: linear-gradient(
       to left,

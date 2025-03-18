@@ -101,6 +101,7 @@ watch(
       :srcset="
         MapsService.getMediumPhotoForPlace(destination?.place?.images ?? [])
       "
+      draggable="false"
       class="cover-image"
     />
     <section class="destination-header">
@@ -259,6 +260,7 @@ watch(
   flex-direction: row;
   justify-content: space-between;
   .info {
+    min-width: 20rem;
     padding: var(--large-spacing);
     display: flex;
     flex-direction: column;
@@ -269,7 +271,8 @@ watch(
   }
   .housing-cover {
     width: 250px;
-    height: 215px;
+    min-width: 3rem;
+    aspect-ratio: 2;
     object-fit: cover;
     --mask: linear-gradient(
       to left,
@@ -293,36 +296,20 @@ watch(
   .departure {
     width: 50%;
   }
-}
-
-.connector {
-  margin-left: var(--small-spacing);
-  padding-left: var(--small-spacing);
-  border-left: 2px red solid;
-}
-
-.activity {
-  height: 10rem;
-  display: flex;
-  justify-content: space-between;
-  .info {
-    display: flex;
+  @media (max-width: 55rem) {
     flex-direction: column;
-    padding: var(--large-spacing);
-  }
-  .activity-cover {
-    width: 250px;
-    object-fit: cover;
-    --mask: linear-gradient(
-      to left,
-      rgba(0, 0, 0, 1) 95%,
-      rgba(0, 0, 0, 0) 100%
-    );
-
-    -webkit-mask-image: var(--mask);
-    mask-image: var(--mask);
+    .arrival {
+      width: 100%;
+      padding-bottom: var(--small-spacing);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .departure {
+      width: 100%;
+      margin-top: var(--small-spacing);
+    }
   }
 }
+
 .bottom {
   margin-top: auto;
 }
