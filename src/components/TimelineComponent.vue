@@ -36,7 +36,7 @@ const setDistanceBetween = (distance: DistanceBetweenPlaces) => {
 }
 
 watch(
-  [() => startDate, () => endDate, activities],
+  [() => startDate, () => endDate, () => activities],
   async () => {
     const daysDiff = utcDate(endDate).diff(utcDate(startDate), 'day')
     const walkingDistances: DistanceBetweenPlaces[] = []
@@ -88,7 +88,7 @@ watch(
     }
     mapStore.distances = walkingDistances
   },
-  { immediate: true },
+  { immediate: true, deep: true },
 )
 </script>
 <template>

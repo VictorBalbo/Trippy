@@ -72,8 +72,13 @@ watch(
         departure.value.originTerminalId,
       )
     }
-
-    if (!mapCenter.value || !mapCenter.value.length) {
+  },
+  { immediate: true },
+)
+watch(
+  destination,
+  () => {
+    if (destination.value) {
       let places: Place[] = [destination.value.place]
       if (activities.value?.length) {
         places = [...places, ...activities.value.map(a => a.place)]
@@ -213,10 +218,10 @@ watch(
     </section>
   </CardComponent>
   <Timeline
-    v-if="destination?.startDate && destination?.endDate"
+    v-if="destination?.startDate && destination?.endDate && activities"
     :startDate="destination?.startDate"
     :endDate="destination?.endDate"
-    :activities="activities!"
+    :activities="activities"
   />
 </template>
 
