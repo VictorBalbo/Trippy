@@ -9,12 +9,10 @@ import Aura from '@primevue/themes/aura'
 
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
-
-dayjs.extend(utc)
-dayjs.extend(timezone)
 
 import '@/assets/main.css'
+
+dayjs.extend(utc)
 
 const app = createApp(App)
 

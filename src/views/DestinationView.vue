@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import type {
@@ -9,11 +9,19 @@ import type {
   Housing,
   Place,
   Transportation,
+  Weather,
 } from '@/models'
 import { useMapStore, useTripStore } from '@/stores'
-import { CardComponent, Timeline } from '@/components'
-import { ArrowRight } from '@/components/icons'
-import { MapsService } from '@/services'
+import { CardComponent, Chart, Textarea, Timeline } from '@/components'
+import {
+  ArrowRight,
+  RainIcon,
+  SunriseIcon,
+  SunsetIcon,
+  TemperatureHigh,
+  WindIcon,
+} from '@/components/icons'
+import { MapsService, WeatherService } from '@/services'
 import {
   getCurrencySymbol,
   getDisplayDuration,
@@ -30,7 +38,7 @@ const { mapCenter } = storeToRefs(mapStore)
 
 const route = useRoute()
 
-const destinationId = route.params.id
+const destinationId = route.params.id as string
 const destination = ref<Destination>()
 const housing = ref<Housing>()
 const activities = ref<Activity[]>()
@@ -38,6 +46,25 @@ const arrival = ref<Transportation>()
 const arrivalDistanceToHome = ref<DistanceBetweenPlaces>()
 const departure = ref<Transportation>()
 const departureTimeFromHome = ref<DistanceBetweenPlaces>()
+const weather = ref<Weather>()
+const chartData = ref()
+
+onMounted(async () => {
+  weather.value = await WeatherService.getDestinationWeather(destinationId)
+  if (weather.value) {
+    const hours = Object.keys(weather.value.lastYear)
+    const temp = hours.map(h => weather.value!.lastYear[h].temp)
+    const rain = hours.map(h => weather.value!.lastYear[h].rain)
+    chartData.value = {
+      type: 'line',
+      title: 'Temperature and Rain Last Year',
+      dataset: [rain, temp],
+      dataLabels: ['Rain', 'Temperature'],
+      yAxisLabels: hours,
+      unit: '°C',
+    }
+  }
+})
 
 watch(
   [destinations, transportations],
@@ -141,7 +168,7 @@ watch(
       <p>{{ destination.housing.name }}</p>
       <p v-if="housing?.checkin && housing?.checkout" class="dates">
         {{ utcDate(housing.checkin).format('ddd DD/MM HH:mm') }}
-        <ArrowRight class="icon" />
+        <ArrowRight class="right-arrow" />
         {{ utcDate(housing.checkout).format('ddd DD/MM HH:mm') }}
       </p>
       <p v-if="destination.housing.price.value">
@@ -217,6 +244,36 @@ watch(
       </small>
     </section>
   </CardComponent>
+  <CardComponent v-if="weather" class="card weather">
+    <h4>Average Weather</h4>
+    <p>
+      <SunriseIcon class="icon" />
+      {{ weather.sunrise }}
+    </p>
+    <p>
+      <SunsetIcon class="icon" />
+      {{ weather.sunset }}
+    </p>
+    <p class="info">
+      <TemperatureHigh class="icon" />
+      {{ weather.avg.maxTemp.toFixed(1) }}<small>&nbsp;ºC&nbsp;</small> /
+      {{ weather.avg.minTemp.toFixed(1) }}<small>&nbsp;ºC</small>
+    </p>
+    <p class="info">
+      <RainIcon class="icon" />
+      {{ weather.avg.rain.toFixed(1) }}<small> &nbsp;mm per day</small>
+    </p>
+    <p>
+      <WindIcon class="icon" />
+      {{ weather.avg.wind.toFixed(1) }}<small>&nbsp;km/h</small>
+    </p>
+
+    <Chart v-if="chartData" :dataOptions="chartData" />
+  </CardComponent>
+  <CardComponent v-if="destination" class="card notes">
+    <h4>Notes</h4>
+    <Textarea v-model="destination.notes" autoResize class="textarea" />
+  </CardComponent>
   <Timeline
     v-if="destination?.startDate && destination?.endDate && activities"
     :startDate="destination?.startDate"
@@ -253,14 +310,11 @@ watch(
 
 .card {
   margin: var(--large-spacing);
-}
-.icon {
-  width: 1rem;
-  color: var(--color-text);
-  margin: 0 var(--large-spacing);
+  padding: var(--large-spacing);
 }
 
 .housing {
+  padding: 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -272,6 +326,11 @@ watch(
     .dates {
       display: flex;
       align-items: center;
+    }
+    .right-arrow {
+      width: 1rem;
+      color: var(--color-text);
+      margin: 0 var(--large-spacing);
     }
   }
   .housing-cover {
@@ -291,7 +350,6 @@ watch(
 }
 
 .transport {
-  padding: var(--large-spacing);
   display: flex;
   flex-direction: row;
   .arrival {
@@ -312,6 +370,24 @@ watch(
       width: 100%;
       margin-top: var(--small-spacing);
     }
+  }
+}
+
+.weather {
+  .info {
+    display: flex;
+    align-items: center;
+  }
+  .icon {
+    width: 1.1125rem;
+    height: 1.1125rem;
+    margin-right: var(--small-spacing);
+  }
+}
+
+.notes {
+  .textarea {
+    width: 100%;
   }
 }
 

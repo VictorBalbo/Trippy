@@ -8,4 +8,5 @@ export interface Destination {
   activities?: Activity[]
   startDate: Date
   endDate: Date
+  notes?: string
 }

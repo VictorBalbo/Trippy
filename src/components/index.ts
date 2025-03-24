@@ -11,6 +11,7 @@ import Inplace from 'primevue/inplace'
 import FloatLabel from 'primevue/floatlabel'
 import ToggleSwitch from 'primevue/toggleswitch'
 import ScrollPanel from 'primevue/scrollpanel'
+import Textarea from 'primevue/textarea'
 
 import DatePicker from './DatePicker.vue'
 import CardComponent from './CardComponent.vue'
@@ -22,6 +23,7 @@ import TripPlanComponent from './TripPlanComponent.vue'
 import InputNumber from './InputNumber.vue'
 import InputMoney from './InputMoney.vue'
 import Timeline from './TimelineComponent.vue'
+import Chart from './ChartComponent.vue'
 
 export {
   Accordion,
@@ -35,12 +37,14 @@ export {
   FloatLabel,
   Inplace,
   ProgressSpinner,
-  ToggleSwitch,
   ScrollPanel,
+  ToggleSwitch,
+  Textarea,
 }
 
 export {
   CardComponent,
+  Chart,
   DatePicker,
   InputNumber,
   InputMoney,

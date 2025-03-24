@@ -11,6 +11,11 @@ import TicketIcon from '@/components/icons/TicketIcon.vue'
 import TrainIcon from '@/components/icons/TrainIcon.vue'
 import TrashIcon from '@/components/icons/TrashIcon.vue'
 import WalkingIcon from '@/components/icons/WalkingIcon.vue'
+import TemperatureHigh from '@/components/icons/TemperatureHigh.vue'
+import RainIcon from '@/components/icons/RainIcon.vue'
+import WindIcon from '@/components/icons/WindIcon.vue'
+import SunriseIcon from '@/components/icons/SunriseIcon.vue'
+import SunsetIcon from '@/components/icons/SunsetIcon.vue'
 
 export {
   AddIcon,
@@ -21,9 +26,14 @@ export {
   MarkerIcon,
   MoonIcon,
   PlaneIcon,
+  RainIcon,
   StarIcon,
+  SunriseIcon,
+  SunsetIcon,
   TicketIcon,
   TrainIcon,
   TrashIcon,
+  TemperatureHigh,
   WalkingIcon,
+  WindIcon,
 }
